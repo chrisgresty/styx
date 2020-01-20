@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
     private final HttpVersion version;
     private final HttpMethod method;
     private final Url url;
-    private final HttpHeaders headers;
+    private final MutableHttpHeaders headers;
     private final ByteStream body;
 
     LiveHttpRequest(Builder builder) {
@@ -104,7 +104,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
         this.version = builder.version;
         this.method = builder.method;
         this.url = builder.url;
-        this.headers = builder.headers.build();
+        this.headers = builder.headers;
         this.body = requireNonNull(builder.body);
     }
 
@@ -213,7 +213,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
      * @return all HTTP headers as an {@link HttpHeaders} instance
      */
     @Override
-    public HttpHeaders headers() {
+    public MutableHttpHeaders headers() {
         return headers;
     }
 
@@ -664,7 +664,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
         private HttpMethod method = HttpMethod.GET;
         private boolean validate = true;
         private Url url;
-        private HttpHeaders.Builder headers;
+        private MutableHttpHeaders headers;
         private HttpVersion version = HTTP_1_1;
         private ByteStream body;
 
@@ -673,7 +673,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
          */
         public Builder() {
             this.url = Url.Builder.url("/").build();
-            this.headers = new HttpHeaders.Builder();
+            this.headers = new MutableHttpHeaders();
             this.body = new ByteStream(Flux.empty());
         }
 
@@ -700,7 +700,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
             this.method = httpMethod(request.method().name());
             this.url = request.url();
             this.version = httpVersion(request.version().toString());
-            this.headers = request.headers().newBuilder();
+            this.headers = request.headers();
             this.body = contentStream;
         }
 
@@ -709,7 +709,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
             this.method = request.method();
             this.url = request.url();
             this.version = request.version();
-            this.headers = request.headers().newBuilder();
+            this.headers = request.headers();
             this.body = request.body();
         }
 
@@ -718,7 +718,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
             this.method = request.method();
             this.url = request.url();
             this.version = request.version();
-            this.headers = request.headers().newBuilder();
+            this.headers = request.headers();
             this.body = new ByteStream(Flux.just(new Buffer(copiedBuffer(request.body()))));
         }
 
@@ -779,7 +779,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
          */
         @Override
         public Builder headers(HttpHeaders headers) {
-            this.headers = headers.newBuilder();
+            this.headers = new MutableHttpHeaders(headers);
             return this;
         }
 
@@ -922,7 +922,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
         public Builder addCookies(Collection<RequestCookie> cookies) {
             requireNonNull(cookies);
 
-            Set<RequestCookie> currentCookies = decode(headers.get(COOKIE));
+            Set<RequestCookie> currentCookies = decode(headers.get(COOKIE).orElse(null));
             List<RequestCookie> newCookies = concat(cookies.stream(), currentCookies.stream()).collect(toList());
 
             return cookies(newCookies);
@@ -955,7 +955,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
         private Builder removeCookiesIf(Predicate<String> removeIfName) {
             Predicate<RequestCookie> keepIf = cookie -> !removeIfName.test(cookie.name());
 
-            List<RequestCookie> newCookies = decode(headers.get(COOKIE)).stream()
+            List<RequestCookie> newCookies = decode(headers.get(COOKIE).orElse(null)).stream()
                     .filter(keepIf)
                     .collect(toList());
 
@@ -1009,7 +1009,7 @@ public class LiveHttpRequest implements LiveHttpMessage {
         }
 
         private Optional<String> requireNotDuplicatedHeader(CharSequence headerName) {
-            List<String> headerValues = headers.build().getAll(headerName);
+            List<String> headerValues = headers.getAll(headerName);
 
             checkArgument(headerValues.size() <= 1, "Duplicate %s found. %s", headerName, headerValues);
 

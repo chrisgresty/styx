@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -80,13 +80,13 @@ import static java.util.stream.Collectors.toList;
 public class LiveHttpResponse implements LiveHttpMessage {
     private final HttpVersion version;
     private final HttpResponseStatus status;
-    private final HttpHeaders headers;
+    private final MutableHttpHeaders headers;
     private final ByteStream body;
 
     LiveHttpResponse(Builder builder) {
         this.version = builder.version;
         this.status = builder.status;
-        this.headers = builder.headers.build();
+        this.headers = builder.headers;
         this.body = builder.body;
     }
 
@@ -124,7 +124,7 @@ public class LiveHttpResponse implements LiveHttpMessage {
      * @return all HTTP headers as an {@link HttpHeaders} object
      */
     @Override
-    public HttpHeaders headers() {
+    public MutableHttpHeaders headers() {
         return headers;
     }
 
@@ -551,7 +551,7 @@ public class LiveHttpResponse implements LiveHttpMessage {
      */
     public static final class Builder implements BuilderTransformer {
         private HttpResponseStatus status = OK;
-        private HttpHeaders.Builder headers;
+        private MutableHttpHeaders headers;
         private HttpVersion version = HTTP_1_1;
         private boolean validate = true;
         private ByteStream body;
@@ -560,7 +560,7 @@ public class LiveHttpResponse implements LiveHttpMessage {
          * Creates a new {@link Builder} object with default attributes.
          */
         public Builder() {
-            this.headers = new HttpHeaders.Builder();
+            this.headers = new MutableHttpHeaders();
             this.body = new ByteStream(Flux.empty());
         }
 
@@ -583,7 +583,7 @@ public class LiveHttpResponse implements LiveHttpMessage {
         public Builder(LiveHttpResponse response) {
             this.status = response.status();
             this.version = response.version();
-            this.headers = response.headers().newBuilder();
+            this.headers = response.headers();
             this.body = response.body();
         }
 
@@ -599,7 +599,7 @@ public class LiveHttpResponse implements LiveHttpMessage {
         public Builder(HttpResponse response, ByteStream byteStream) {
             this.status = statusWithCode(response.status().code());
             this.version = httpVersion(response.version().toString());
-            this.headers = response.headers().newBuilder();
+            this.headers = response.headers();
             this.body = requireNonNull(byteStream);
         }
 
@@ -811,7 +811,7 @@ public class LiveHttpResponse implements LiveHttpMessage {
          * @return {@code this}
          */
         public Builder headers(HttpHeaders headers) {
-            this.headers = headers.newBuilder();
+            this.headers = new MutableHttpHeaders(headers);
             return this;
         }
 
@@ -858,7 +858,7 @@ public class LiveHttpResponse implements LiveHttpMessage {
         }
 
         Builder ensureContentLengthIsValid() {
-            List<String> contentLengths = headers.build().getAll(CONTENT_LENGTH);
+            List<String> contentLengths = headers.getAll(CONTENT_LENGTH);
 
             checkArgument(contentLengths.size() <= 1, "Duplicate Content-Length found. %s", contentLengths);
 

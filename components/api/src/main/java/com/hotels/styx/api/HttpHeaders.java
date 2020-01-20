@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,13 +39,17 @@ import static java.util.stream.StreamSupport.stream;
 /**
  * Represent a collection of {@link HttpHeader}s from a single HTTP message.
  */
-public final class HttpHeaders implements Iterable<HttpHeader> {
-    private static final DateTimeFormatter RFC1123_DATE_FORMAT = DateTimeFormatter
+public class HttpHeaders implements Iterable<HttpHeader> {
+    protected static final DateTimeFormatter RFC1123_DATE_FORMAT = DateTimeFormatter
             .ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
             .withLocale(US)
             .withZone(UTC);
 
-    private final DefaultHttpHeaders nettyHeaders;
+    protected final DefaultHttpHeaders nettyHeaders;
+
+    protected HttpHeaders() {
+        this.nettyHeaders = new DefaultHttpHeaders(false);
+    }
 
     private HttpHeaders(Builder builder) {
         this.nettyHeaders = builder.nettyHeaders;
@@ -149,7 +153,6 @@ public final class HttpHeaders implements Iterable<HttpHeader> {
             this.nettyHeaders = new DefaultHttpHeaders(false);
             this.nettyHeaders.set(headers.nettyHeaders);
         }
-
 
         public List<String> getAll(CharSequence name) {
             return this.nettyHeaders.getAll(name);
