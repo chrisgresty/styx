@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
 package com.hotels.styx.client.loadbalancing.strategies;
 
 import com.hotels.styx.api.Environment;
+import com.hotels.styx.api.configuration.Configuration;
 import com.hotels.styx.api.extension.ActiveOrigins;
 import com.hotels.styx.api.extension.OriginsSnapshot;
 import com.hotels.styx.api.extension.RemoteHost;
 import com.hotels.styx.api.extension.loadbalancing.spi.LoadBalancer;
 import com.hotels.styx.api.extension.loadbalancing.spi.LoadBalancerFactory;
-import com.hotels.styx.api.configuration.Configuration;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.hotels.styx.common.Collections.stream;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * A load balancing strategy that favours all origins equally, iterating through them in the order that they are provided.
@@ -53,7 +54,8 @@ public class RoundRobinStrategy implements LoadBalancer {
 
     public RoundRobinStrategy(ActiveOrigins activeOrigins, Iterable<RemoteHost> initialOrigins) {
         this.activeOrigins = requireNonNull(activeOrigins);
-        this.origins = new AtomicReference<>(new ArrayList<>(newArrayList(initialOrigins)));
+        this.origins = new AtomicReference<>(stream(initialOrigins)
+                .collect(toCollection(() -> new ArrayList<>())));
     }
 
     /**
@@ -78,7 +80,8 @@ public class RoundRobinStrategy implements LoadBalancer {
 
     @Override
     public void originsChanged(OriginsSnapshot snapshot) {
-        origins.set(newArrayList(activeOrigins.snapshot()));
+        origins.set(stream(activeOrigins.snapshot())
+                .collect(toCollection(() -> new ArrayList<>())));
     }
 
     @Override

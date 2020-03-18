@@ -52,9 +52,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import static com.hotels.styx.api.RequestCookie.requestCookie;
+import static com.hotels.styx.common.Collections.copyToUnmodifiableSet;
+import static com.hotels.styx.common.Collections.size;
 import static com.hotels.styx.server.UniqueIdSuppliers.fixedUniqueIdSupplier;
 import static com.hotels.styx.support.netty.HttpMessageSupport.httpMessageToBytes;
 import static com.hotels.styx.support.netty.HttpMessageSupport.httpRequest;
@@ -286,7 +286,7 @@ public class NettyToStyxRequestDecoderTest {
                         requestCookie("guid", "xxxxx-xxx-xxx-xxx-xxxxxxx")
                 )
                 .build();
-        assertThat(newHashSet(styxRequest.cookies()), is(newHashSet(expected.cookies())));
+        assertThat(copyToUnmodifiableSet(styxRequest.cookies()), is(copyToUnmodifiableSet(expected.cookies())));
     }
 
     @Test
@@ -311,7 +311,7 @@ public class NettyToStyxRequestDecoderTest {
                         requestCookie("guid", "a,b")
                 )
                 .build();
-        assertThat(newHashSet(styxRequest.cookies()), is(newHashSet(expected.cookies())));
+        assertThat(copyToUnmodifiableSet(styxRequest.cookies()), is(copyToUnmodifiableSet(expected.cookies())));
     }
 
     @Test
@@ -345,7 +345,7 @@ public class NettyToStyxRequestDecoderTest {
     }
 
     private void assertThatHttpHeadersAreSame(Iterable<HttpHeader> headers, HttpHeaders headers1) {
-        assertThat(newArrayList(headers).size(), is(headers1.size()));
+        assertThat(size(headers), is(headers1.size()));
         for (HttpHeader header : headers) {
             assertThat(header.value(), is(headers1.get(header.name())));
         }

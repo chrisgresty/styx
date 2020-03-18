@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package com.hotels.styx.client.applications;
 import com.hotels.styx.api.extension.Origin;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.hotels.styx.api.Id.id;
 import static com.hotels.styx.api.extension.Origin.checkThatOriginsAreDistinct;
 import static com.hotels.styx.api.extension.Origin.newOriginBuilder;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,7 +39,7 @@ public class OriginTest {
         Origin origin1 = newOriginBuilder("localhost", 8080).applicationId("webapp").id("origin-01").build();
         Origin origin2 = newOriginBuilder("localhost", 8081).applicationId("webapp").id("origin-02").build();
 
-        checkThatOriginsAreDistinct(newArrayList(origin1, origin2));
+        checkThatOriginsAreDistinct(asList(origin1, origin2));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class OriginTest {
         Origin origin3 = newOriginBuilder("localhost", 8082).applicationId("webapp").id("origin-03").build();
 
         assertThrows(IllegalArgumentException.class,
-                () -> checkThatOriginsAreDistinct(newArrayList(origin1, origin2, origin3)));
+                () -> checkThatOriginsAreDistinct(asList(origin1, origin2, origin3)));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class OriginTest {
         Origin origin1 = newOriginBuilder("localhost", 8080).applicationId("webapp").id("origin-01").build();
         Origin origin2 = newOriginBuilder("localhost", 8081).applicationId("webapp").id("origin-02").build();
 
-        checkThatOriginsAreDistinct(newArrayList(origin1, origin2));
+        checkThatOriginsAreDistinct(asList(origin1, origin2));
     }
 
     @Test
@@ -67,6 +67,6 @@ public class OriginTest {
         Origin origin3 = newOriginBuilder("localhost", 8081).applicationId("webapp").id("origin-03").build();
 
         assertThrows(IllegalArgumentException.class,
-                () -> checkThatOriginsAreDistinct(newArrayList(origin1, origin2, origin3)));
+                () -> checkThatOriginsAreDistinct(asList(origin1, origin2, origin3)));
     }
 }

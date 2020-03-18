@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.hotels.styx.common.Collections.stream;
 import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.proxy.ClassFactories.newInstance;
 import static com.hotels.styx.spi.ExtensionObjectFactory.EXTENSION_OBJECT_FACTORY;
@@ -129,8 +129,7 @@ public final class ServiceProvision {
         JsonNode factories = jsonNode.get("factories");
         JsonNodeConfig jsonNodeConfig = new JsonNodeConfig(factories);
 
-        return newArrayList(factories.fieldNames())
-                .stream()
+        return stream(factories.fieldNames())
                 .flatMap(name -> {
                     if (isType(name, jsonNodeConfig, SpiExtension.class)) {
                         return namedExtensionFromSpiExtension(environment, serviceClass, jsonNodeConfig, name);

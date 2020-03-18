@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static com.hotels.styx.common.Collections.concat;
+import static com.hotels.styx.common.Collections.unmodifiableSetOf;
 import static java.util.Collections.singleton;
 
 /**
@@ -50,7 +50,7 @@ public class MetricsSupport {
         }
 
         public static <T> Matcher<MetricRegistry> hasNotReceivedUpdatesExcept(String... updatedMetrics) {
-            return new IsNotUpdated(newHashSet(updatedMetrics));
+            return new IsNotUpdated(unmodifiableSetOf(updatedMetrics));
         }
 
         @Override

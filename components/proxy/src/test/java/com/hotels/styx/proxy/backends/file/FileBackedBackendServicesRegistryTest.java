@@ -40,12 +40,12 @@ import java.util.concurrent.TimeoutException;
 
 import static ch.qos.logback.classic.Level.ERROR;
 import static ch.qos.logback.classic.Level.INFO;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static com.hotels.styx.api.extension.service.spi.Registry.Outcome.FAILED;
 import static com.hotels.styx.api.extension.service.spi.Registry.ReloadResult.failed;
 import static com.hotels.styx.api.extension.service.spi.Registry.ReloadResult.reloaded;
 import static com.hotels.styx.api.extension.service.spi.Registry.ReloadResult.unchanged;
+import static com.hotels.styx.common.Collections.size;
 import static com.hotels.styx.common.Collections.unmodifiableListOf;
 import static com.hotels.styx.common.StyxFutures.await;
 import static com.hotels.styx.common.io.ResourceFactory.newResource;
@@ -162,7 +162,7 @@ public class FileBackedBackendServicesRegistryTest {
 
         Iterable<BackendService> backendServices = new YAMLBackendServicesReader().read(toByteArray(resource.inputStream()));
 
-        assertThat(newArrayList(backendServices).size(), is(3));
+        assertThat(size(backendServices), is(3));
     }
 
     @Test

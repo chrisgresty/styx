@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,16 +21,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static com.hotels.styx.api.extension.Origin.newOriginBuilder;
 import static com.hotels.styx.api.extension.service.BackendService.DEFAULT_RESPONSE_TIMEOUT_MILLIS;
+import static com.hotels.styx.common.Collections.unmodifiableSetOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BackendServiceTest {
-    Set<Origin> originSet = newHashSet(newOriginBuilder("localhost", 123).build());
+    Set<Origin> originSet = unmodifiableSetOf(newOriginBuilder("localhost", 123).build());
 
     @Test
     public void usesResponseTimeoutOfZeroToIndicateDefaultValue() {

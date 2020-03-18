@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ import com.codahale.metrics.MetricRegistryListener;
 import com.codahale.metrics.Timer;
 import com.hotels.styx.api.MetricRegistry;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -72,7 +72,7 @@ public class ScopedMetricRegistry implements MetricRegistry {
      * @return the list of scopes this registry is part of
      */
     public List<String> scopes() {
-        List<String> scopes = newArrayList();
+        List<String> scopes = new ArrayList<>();
         if (parent instanceof ScopedMetricRegistry) {
             scopes.addAll(((ScopedMetricRegistry) parent).scopes());
         }

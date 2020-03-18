@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.hotels.styx.api.HttpHeaderNames.CONTENT_LENGTH;
 import static com.hotels.styx.api.HttpHeaderNames.TRANSFER_ENCODING;
 import static com.hotels.styx.api.extension.service.StickySessionConfig.stickySessionDisabled;
@@ -143,7 +142,7 @@ public final class StyxBackendServiceClient implements BackendServiceClient {
         Optional<RemoteHost> remoteHost = selectOrigin(request);
         if (remoteHost.isPresent()) {
             RemoteHost host = remoteHost.get();
-            List<RemoteHost> newPreviousOrigins = newArrayList(previousOrigins);
+            List<RemoteHost> newPreviousOrigins = new ArrayList<>(previousOrigins);
             newPreviousOrigins.add(remoteHost.get());
 
             return ResponseEventListener.from(host.hostClient().handle(request, context)

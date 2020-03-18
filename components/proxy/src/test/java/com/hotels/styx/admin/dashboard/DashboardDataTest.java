@@ -35,12 +35,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static com.hotels.styx.api.Id.id;
 import static com.hotels.styx.api.extension.Origin.newOriginBuilder;
 import static com.hotels.styx.api.extension.RemoteHost.remoteHost;
 import static com.hotels.styx.api.extension.service.BackendService.newBackendServiceBuilder;
 import static com.hotels.styx.applications.BackendServices.newBackendServices;
+import static com.hotels.styx.common.Collections.unmodifiableSetOf;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -337,7 +337,7 @@ public class DashboardDataTest {
     private static BackendService application(String id, Origin... origins) {
         return newBackendServiceBuilder()
                 .id(id)
-                .origins(newHashSet(origins))
+                .origins(unmodifiableSetOf(origins))
                 .build();
     }
 
