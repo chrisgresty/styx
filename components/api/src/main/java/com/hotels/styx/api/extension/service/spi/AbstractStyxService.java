@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.api.extension.service.spi;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.api.Eventual;
 import com.hotels.styx.api.HttpHandler;
 import org.slf4j.Logger;
@@ -38,6 +37,7 @@ import static com.hotels.styx.api.extension.service.spi.StyxServiceStatus.STOPPE
 import static com.hotels.styx.api.extension.service.spi.StyxServiceStatus.STOPPING;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.singletonMap;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
@@ -112,7 +112,7 @@ public abstract class AbstractStyxService implements StyxService {
 
     @Override
     public Map<String, HttpHandler> adminInterfaceHandlers() {
-        return ImmutableMap.of("status", (request, context) -> Eventual.of(
+        return  singletonMap("status", (request, context) -> Eventual.of(
                 response(OK)
                         .addHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .body(format("{ name: \"%s\" status: \"%s\" }", name, status), UTF_8)

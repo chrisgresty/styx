@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.api;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,12 +22,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.hotels.styx.api.HttpHeader.header;
 import static com.hotels.styx.api.HttpHeaderNames.CONTENT_LENGTH;
-import static com.hotels.styx.api.HttpHeaderNames.COOKIE;
 import static com.hotels.styx.api.HttpHeaderNames.HOST;
 import static com.hotels.styx.api.HttpMethod.DELETE;
 import static com.hotels.styx.api.HttpMethod.GET;
@@ -305,10 +306,10 @@ public class HttpRequestTest {
 
         assertThat(req.queryParamNames(), containsInAnyOrder("foo", "abc"));
 
-        assertThat(req.queryParams(), isMap(ImmutableMap.of(
-                "foo", asList("bar", "hello"),
-                "abc", singletonList("def")
-        )));
+        Map<String, List<String>> expected = new HashMap<>();
+        expected.put("foo", asList("bar", "hello"));
+        expected.put("abc", singletonList("def"));
+        assertThat(req.queryParams(), isMap(expected));
     }
 
     @Test

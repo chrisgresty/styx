@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package com.hotels.styx.admin.handlers;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.StartupConfig;
 import com.hotels.styx.common.http.handler.StaticBodyHttpHandler;
 
 import static com.google.common.net.MediaType.HTML_UTF_8;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -36,10 +37,10 @@ public class StartupConfigHandler extends StaticBodyHttpHandler {
     }
 
     private static String render(StartupConfig startupConfig) {
-        return ImmutableMap.of(
-                "Styx Home", startupConfig.styxHome(),
-                "Config File Location", startupConfig.configFileLocation(),
-                "Log Config Location", startupConfig.logConfigLocation())
+        return unmodifiableMapOf(
+                pair("Styx Home", startupConfig.styxHome()),
+                pair("Config File Location", startupConfig.configFileLocation()),
+                pair("Log Config Location", startupConfig.logConfigLocation()))
                 .entrySet().stream()
                 .map(entry -> entry.getKey() + "='" + entry.getValue() + "'")
                 .collect(joining("<br />", "<html><body>", "</body></html>"));

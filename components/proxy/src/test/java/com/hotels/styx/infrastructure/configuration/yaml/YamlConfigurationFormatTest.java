@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package com.hotels.styx.infrastructure.configuration.yaml;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.is;
 public class YamlConfigurationFormatTest {
     @Test
     public void canResolvePlaceholdersInInclude() throws IOException {
-        Map<String, String> overrides = ImmutableMap.of("CONFIG_LOCATION", "some_location");
+        Map<String, String> overrides = Collections.singletonMap("CONFIG_LOCATION", "some_location");
 
         String yaml = "${CONFIG_LOCATION:classpath:}/conf/environment/default.yaml";
 

@@ -17,7 +17,6 @@ package com.hotels.styx.testapi;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.api.Eventual;
 import com.hotels.styx.api.HttpHandler;
 import com.hotels.styx.api.HttpResponse;
@@ -42,6 +41,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.hotels.styx.api.HttpRequest.get;
 import static com.hotels.styx.api.HttpResponseStatus.OK;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.common.StyxFutures.await;
 import static com.hotels.styx.support.matchers.IsOptional.isValue;
 import static com.hotels.styx.testapi.Origins.origin;
@@ -291,9 +292,9 @@ public class StyxServerTest {
 
     @Test
     public void addsEndpointLinksToPluginPage() {
-        setUpStyxAndPluginWithAdminPages(ImmutableMap.of(
-                "adminPage1", (request, ctx) -> Eventual.of(LiveHttpResponse.response().build()),
-                "adminPage2", (request, ctx) -> Eventual.of(LiveHttpResponse.response().build())
+        setUpStyxAndPluginWithAdminPages(unmodifiableMapOf(
+                pair("adminPage1", (request, ctx) -> Eventual.of(LiveHttpResponse.response().build())),
+                pair("adminPage2", (request, ctx) -> Eventual.of(LiveHttpResponse.response().build()))
         ));
 
         HttpResponse response = doAdminRequest("/admin/plugins/plugin-with-admin-pages");
@@ -305,9 +306,9 @@ public class StyxServerTest {
 
     @Test
     public void exposesAdminEndpoints() {
-        setUpStyxAndPluginWithAdminPages(ImmutableMap.of(
-                "adminPage1", (request, ctx) -> Eventual.of(LiveHttpResponse.response().header("AdminPage1", "yes").build()),
-                "adminPage2", (request, ctx) -> Eventual.of(LiveHttpResponse.response().header("AdminPage2", "yes").build())
+        setUpStyxAndPluginWithAdminPages(unmodifiableMapOf(
+                pair("adminPage1", (request, ctx) -> Eventual.of(LiveHttpResponse.response().header("AdminPage1", "yes").build())),
+                pair("adminPage2", (request, ctx) -> Eventual.of(LiveHttpResponse.response().header("AdminPage2", "yes").build()))
         ));
 
         HttpResponse response = doAdminRequest("/admin/plugins/plugin-with-admin-pages/adminPage1");

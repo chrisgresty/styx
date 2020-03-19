@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.infrastructure.configuration;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.api.Resource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.common.io.ResourceFactory.newResource;
 import static com.hotels.styx.infrastructure.configuration.ConfigurationSource.configSource;
 import static com.hotels.styx.infrastructure.configuration.yaml.PlaceholderResolver.replacePlaceholder;
@@ -42,24 +43,24 @@ public class ConfigurationParserTest {
     public void setUp() {
         fakeFileSystem = new HashMap<>();
 
-        createStubConfig("/fake/base-config.yml", ImmutableMap.of(
-                "include", "/fake/parent-config.yml",
-                "number", 123,
-                "string", "abc",
-                "numberFromParent", 999,
-                "hasPlaceholder", "${string}"
+        createStubConfig("/fake/base-config.yml", unmodifiableMapOf(
+                pair("include", "/fake/parent-config.yml"),
+                pair("number", 123),
+                pair("string", "abc"),
+                pair("numberFromParent", 999),
+                pair("hasPlaceholder", "${string}")
         ));
 
-        createStubConfig("/fake/parent-config.yml", ImmutableMap.of(
-                "numberFromParent", 111,
-                "stringFromParent", "DEF"));
+        createStubConfig("/fake/parent-config.yml", unmodifiableMapOf(
+                pair("numberFromParent", 111),
+                pair("stringFromParent", "DEF")));
     }
 
     @Test
     public void providesConfig() {
-        createStubConfig("/fake/simple-config.yml", ImmutableMap.of(
-                "foo", 123,
-                "bar", "abc"));
+        createStubConfig("/fake/simple-config.yml", unmodifiableMapOf(
+                pair("foo", 123),
+                pair("bar", "abc")));
 
         ConfigurationParser<StubConfiguration> parser = new ConfigurationParser.Builder<StubConfiguration>()
                 .format(format)
@@ -122,7 +123,7 @@ public class ConfigurationParserTest {
     public void appliesOverrides() {
         ConfigurationParser<StubConfiguration> parser = new ConfigurationParser.Builder<StubConfiguration>()
                 .format(format)
-                .overrides(ImmutableMap.of("string", "overridden"))
+                .overrides(unmodifiableMapOf(pair("string", "overridden")))
                 .build();
 
         StubConfiguration parsedConfiguration = parser.parse(configSource(newResource("/fake/base-config.yml")));
@@ -132,21 +133,21 @@ public class ConfigurationParserTest {
 
     @Test
     public void includeValueCanContainPlaceholder() {
-        createStubConfig("/test/base-config.yml", ImmutableMap.of(
-                "include", "${include-placeholder}",
-                "number", 123,
-                "string", "abc",
-                "numberFromParent", 999,
-                "hasPlaceholder", "${string}"
+        createStubConfig("/test/base-config.yml", unmodifiableMapOf(
+                pair("include", "${include-placeholder}"),
+                pair("number", 123),
+                pair("string", "abc"),
+                pair("numberFromParent", 999),
+                pair("hasPlaceholder", "${string}")
         ));
 
-        createStubConfig("/test/parent-config.yml", ImmutableMap.of(
-                "numberFromParent", 111,
-                "stringFromParent", "DEF"));
+        createStubConfig("/test/parent-config.yml", unmodifiableMapOf(
+                pair("numberFromParent", 111),
+                pair("stringFromParent", "DEF")));
 
         ConfigurationParser<StubConfiguration> parser = new ConfigurationParser.Builder<StubConfiguration>()
                 .format(format)
-                .overrides(ImmutableMap.of("include-placeholder", "/test/parent-config.yml"))
+                .overrides(unmodifiableMapOf(pair("include-placeholder", "/test/parent-config.yml")))
                 .build();
 
         StubConfiguration parsedConfiguration = parser.parse(configSource(newResource("/test/base-config.yml")));
@@ -156,13 +157,13 @@ public class ConfigurationParserTest {
 
     @Test
     public void childCanReplaceParentPlaceholders() {
-        createStubConfig("/test/base-config.yml", ImmutableMap.of(
-                "include", "/test/parent-config.yml",
-                "childString", "abc"
+        createStubConfig("/test/base-config.yml", unmodifiableMapOf(
+                pair("include", "/test/parent-config.yml"),
+                pair("childString", "abc")
         ));
 
-        createStubConfig("/test/parent-config.yml", ImmutableMap.of(
-                "parentString", "${childString}"
+        createStubConfig("/test/parent-config.yml", unmodifiableMapOf(
+                pair("parentString", "${childString}")
         ));
 
         ConfigurationParser<StubConfiguration> parser = new ConfigurationParser.Builder<StubConfiguration>()

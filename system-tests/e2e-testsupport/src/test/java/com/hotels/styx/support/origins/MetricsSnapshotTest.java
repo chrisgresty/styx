@@ -16,13 +16,13 @@
 package com.hotels.styx.support.origins;
 
 import com.codahale.metrics.json.MetricsModule;
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.admin.dashboard.JsonSupplier;
 import com.hotels.styx.api.metrics.codahale.CodaHaleMetricRegistry;
 import com.hotels.styx.utils.MetricsSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -46,7 +46,7 @@ public class MetricsSnapshotTest {
     public void returnsMetricsIfAvailable() throws Exception {
         registry.meter("my.meter").mark();
 
-        Optional<ImmutableMap<String, Object>> meter = MetricsSnapshot.fromString(jsonSupplier.get())
+        Optional<Map<String, Object>> meter = MetricsSnapshot.fromString(jsonSupplier.get())
                 .getMetric("meters", "my.meter");
 
         assertThat(meter.isPresent(), is(true));
@@ -54,7 +54,7 @@ public class MetricsSnapshotTest {
 
     @Test
     public void returnsAbsentIfMetricIsNotAvailable() throws Exception {
-        Optional<ImmutableMap<String, Object>> meter = MetricsSnapshot.fromString(jsonSupplier.get())
+        Optional<Map<String, Object>> meter = MetricsSnapshot.fromString(jsonSupplier.get())
                 .getMetric("meters", "my.meter");
 
         assertThat(meter.isPresent(), is(false));
@@ -64,7 +64,7 @@ public class MetricsSnapshotTest {
     public void returnsAbsentIfWrongMetricsType() throws Exception {
         registry.meter("my.meter").mark();
 
-        Optional<ImmutableMap<String, Object>> meter = MetricsSnapshot.fromString(jsonSupplier.get())
+        Optional<Map<String, Object>> meter = MetricsSnapshot.fromString(jsonSupplier.get())
                 .getMetric("wrong type", "my.meter");
 
         assertThat(meter.isPresent(), is(false));

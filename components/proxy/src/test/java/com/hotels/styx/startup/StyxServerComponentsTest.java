@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.startup;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.Environment;
 import com.hotels.styx.StyxConfig;
 import com.hotels.styx.api.Eventual;
@@ -32,6 +31,8 @@ import java.util.Map;
 
 import static com.hotels.styx.api.HttpResponse.response;
 import static com.hotels.styx.common.Collections.unmodifiableListOf;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.support.matchers.IsOptional.isValue;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
@@ -77,9 +78,9 @@ public class StyxServerComponentsTest {
     public void loadsServices() {
         StyxServerComponents components = new StyxServerComponents.Builder()
                 .styxConfig(new StyxConfig())
-                .services((env, routeDb) -> ImmutableMap.of(
-                        "service1", mock(StyxService.class),
-                        "service2", mock(StyxService.class)))
+                .services((env, routeDb) -> unmodifiableMapOf(
+                        pair("service1", mock(StyxService.class)),
+                        pair("service2", mock(StyxService.class))))
                 .build();
 
         Map<String, StyxService> services = components.services();
@@ -91,9 +92,9 @@ public class StyxServerComponentsTest {
     public void exposesAdditionalServices() {
         StyxServerComponents components = new StyxServerComponents.Builder()
                 .styxConfig(new StyxConfig())
-                .additionalServices(ImmutableMap.of(
-                        "service1", mock(StyxService.class),
-                        "service2", mock(StyxService.class)))
+                .additionalServices(unmodifiableMapOf(
+                        pair("service1", mock(StyxService.class)),
+                        pair("service2", mock(StyxService.class))))
                 .build();
 
         Map<String, StyxService> services = components.services();

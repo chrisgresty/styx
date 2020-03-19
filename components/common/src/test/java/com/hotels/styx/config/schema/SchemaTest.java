@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,6 +27,8 @@ import java.util.function.Function;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE;
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.config.schema.SchemaDsl.*;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -446,15 +447,15 @@ public class SchemaTest {
     @Test
     public void routingObject_routingObjectDefinition() throws Exception {
 
-        Map<String, Schema.FieldType> extensions = ImmutableMap.of(
-                "ProxyTo", object(
+        Map<String, Schema.FieldType> extensions = unmodifiableMapOf(
+                pair("ProxyTo", object(
                         field("id", string()),
                         field("destination", string())
-                ),
-                "Redirection", object(
+                )),
+                pair("Redirection", object(
                         field("status", integer()),
                         field("location", string())
-                )
+                ))
         );
 
         JsonNode root = YAML_MAPPER.readTree(""
@@ -515,15 +516,15 @@ public class SchemaTest {
     @Test
     public void union_validatesDiscriminatedUnions() throws Exception {
 
-        Map<String, Schema.FieldType> extensions = ImmutableMap.of(
-                "ProxyTo", object(
+        Map<String, Schema.FieldType> extensions = unmodifiableMapOf(
+                pair("ProxyTo", object(
                         field("id", string()),
                         field("destination", string())
-                ),
-                "Redirection", object(
+                )),
+                pair("Redirection", object(
                         field("status", integer()),
                         field("location", string())
-                )
+                ))
         );
 
         JsonNode root = YAML_MAPPER.readTree(""

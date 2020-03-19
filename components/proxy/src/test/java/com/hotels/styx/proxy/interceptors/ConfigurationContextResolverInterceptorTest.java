@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.proxy.interceptors;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.api.Eventual;
 import com.hotels.styx.api.HttpInterceptor;
 import com.hotels.styx.api.LiveHttpRequest;
@@ -25,9 +24,13 @@ import com.hotels.styx.api.configuration.ConfigurationContextResolver;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 import static com.hotels.styx.api.HttpResponseStatus.OK;
 import static com.hotels.styx.api.LiveHttpRequest.get;
 import static com.hotels.styx.api.LiveHttpResponse.response;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.support.Support.requestContext;
 import static com.hotels.styx.support.api.matchers.HttpStatusMatcher.hasStatus;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,7 +42,7 @@ public class ConfigurationContextResolverInterceptorTest {
     @Test
     public void resolvesConfigurationContext() {
         LiveHttpRequest request = get("/").build();
-        Configuration.Context context = context(ImmutableMap.of("key1", "value1", "key2", "value2"));
+        Configuration.Context context = context(unmodifiableMapOf(pair("key1", "value1"), pair("key2", "value2")));
 
         ConfigurationContextResolver configurationContextResolver = configurationContextResolver(request, context);
 
@@ -60,7 +63,7 @@ public class ConfigurationContextResolverInterceptorTest {
         return configurationContextResolver;
     }
 
-    private Configuration.Context context(ImmutableMap<String, String> map) {
+    private Configuration.Context context(Map<String, String> map) {
         Configuration.Context context = mock(Configuration.Context.class);
         when(context.asMap()).thenReturn(map);
         return context;

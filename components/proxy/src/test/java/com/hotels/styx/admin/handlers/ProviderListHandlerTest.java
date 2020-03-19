@@ -18,7 +18,6 @@ package com.hotels.styx.admin.handlers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.StyxObjectRecord;
 import com.hotels.styx.api.HttpHandler;
 import com.hotels.styx.api.HttpResponse;
@@ -33,9 +32,11 @@ import java.util.HashSet;
 import java.util.Map;
 
 import static com.google.common.net.MediaType.PLAIN_TEXT_UTF_8;
-import static com.hotels.styx.support.Support.requestContext;
 import static com.hotels.styx.api.HttpRequest.get;
 import static com.hotels.styx.api.HttpResponseStatus.OK;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
+import static com.hotels.styx.support.Support.requestContext;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -83,10 +84,10 @@ public class ProviderListHandlerTest {
 
         @Override
         public Map<String, HttpHandler> adminInterfaceHandlers(String namespace) {
-            return ImmutableMap.of(
-                    "withslash/", new HttpContentHandler(PLAIN_TEXT_UTF_8.toString(), UTF_8, () -> "with slash"),
-                    "noslash", new HttpContentHandler(PLAIN_TEXT_UTF_8.toString(), UTF_8, () -> "no slash"),
-                    "/", new HttpContentHandler(PLAIN_TEXT_UTF_8.toString(), UTF_8, () -> "just a slash"));
+            return unmodifiableMapOf(
+                    pair("withslash/", new HttpContentHandler(PLAIN_TEXT_UTF_8.toString(), UTF_8, () -> "with slash")),
+                    pair("noslash", new HttpContentHandler(PLAIN_TEXT_UTF_8.toString(), UTF_8, () -> "no slash")),
+                    pair("/", new HttpContentHandler(PLAIN_TEXT_UTF_8.toString(), UTF_8, () -> "just a slash")));
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  */
 package com.hotels.styx.common;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import java.util.Set;
 
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -29,10 +30,10 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
 public class MapStreamTest {
-    private final Map<String, String> map = ImmutableMap.of(
-            "firstName", "John",
-            "lastName", "Smith",
-            "dateOfBirth", "1970-01-01"
+    private final Map<String, String> map = unmodifiableMapOf(
+            pair("firstName", "John"),
+            pair("lastName", "Smith"),
+            pair("dateOfBirth", "1970-01-01")
     );
 
     @Test

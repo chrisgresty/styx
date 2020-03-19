@@ -18,10 +18,10 @@ package com.hotels.styx.utils;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.api.HttpResponse;
 import com.hotels.styx.client.HttpClient;
 import com.hotels.styx.client.StyxHttpClient;
+import com.hotels.styx.common.Collections;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -88,10 +88,10 @@ public class MetricsSnapshot {
                 .map(value -> (int) value);
     }
 
-    public Optional<ImmutableMap<String, Object>> getMetric(String metricType, String metricName) {
+    public Optional<Map<String, Object>> getMetric(String metricType, String metricName) {
         return Optional.ofNullable((Map<String, Object>) tree.get(metricType))
                 .map(metersMap -> (Map<String, Object>) metersMap.get(metricName))
-                .map(ImmutableMap::copyOf);
+                .map(Collections::copyToUnmodifiableMap);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.infrastructure.configuration.UnresolvedPlaceholder;
 import com.hotels.styx.infrastructure.configuration.yaml.JsonTreeTraversal.JsonTreeVisitor;
 import org.slf4j.Logger;
@@ -38,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static com.hotels.styx.common.Collections.copyToUnmodifiableMap;
 import static com.hotels.styx.infrastructure.configuration.yaml.JsonTreeTraversal.traverseJsonTree;
 import static java.util.Objects.requireNonNull;
 import static java.util.regex.Pattern.compile;
@@ -58,7 +58,7 @@ public class PlaceholderResolver {
 
     public PlaceholderResolver(ObjectNode rootNode, Map<String, String> externalProperties) {
         this.rootNode = requireNonNull(rootNode);
-        this.externalProperties = ImmutableMap.copyOf(externalProperties);
+        this.externalProperties = copyToUnmodifiableMap(externalProperties);
     }
 
     /**

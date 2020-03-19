@@ -17,7 +17,6 @@ package com.hotels.styx.startup;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.AsyncEventBus;
 import com.hotels.styx.Environment;
 import com.hotels.styx.InetServer;
@@ -51,6 +50,7 @@ import java.util.Map;
 
 import static com.hotels.styx.StartupConfig.newStartupConfigBuilder;
 import static com.hotels.styx.Version.readVersionFrom;
+import static com.hotels.styx.common.Collections.copyToUnmodifiableMap;
 import static com.hotels.styx.common.Collections.copyToUnmodifiableSet;
 import static com.hotels.styx.common.Collections.unmodifiableSetOf;
 import static com.hotels.styx.infrastructure.logging.LOGBackConfigurer.initLogging;
@@ -63,6 +63,7 @@ import static com.hotels.styx.startup.ServicesLoader.SERVICES_FROM_CONFIG;
 import static com.hotels.styx.startup.StyxServerComponents.LoggingSetUp.DO_NOT_MODIFY;
 import static com.hotels.styx.startup.extensions.PluginLoadingForStartup.loadPlugins;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -95,10 +96,8 @@ public class StyxServerComponents {
         StyxConfig styxConfig = requireNonNull(builder.styxConfig);
 
         this.startupConfig = builder.startupConfig == null ? newStartupConfigBuilder().build() : builder.startupConfig;
-        Map<String, RoutingObjectFactory> routingObjectFactories = new ImmutableMap.Builder<String, RoutingObjectFactory>()
-                .putAll(BUILTIN_HANDLER_FACTORIES)
-                .putAll(builder.additionalRoutingObjectFactories)
-                .build();
+        Map<String, RoutingObjectFactory> routingObjectFactories = copyToUnmodifiableMap(
+                BUILTIN_HANDLER_FACTORIES, builder.additionalRoutingObjectFactories);
 
         this.environment = newEnvironment(styxConfig, builder.metricRegistry);
         builder.loggingSetUp.setUp(environment);
@@ -130,7 +129,7 @@ public class StyxServerComponents {
 
         this.environment.configuration().get("executors", JsonNode.class)
                 .map(StyxServerComponents::readComponents)
-                .orElse(ImmutableMap.of())
+                .orElse(emptyMap())
                 .forEach((name, definition) -> {
                     LOGGER.warn("Loading styx server: " + name + ": " + definition);
                     NettyExecutor executor = Builtins.buildExecutor(name, definition, BUILTIN_EXECUTOR_FACTORIES);
@@ -163,7 +162,7 @@ public class StyxServerComponents {
 
         this.environment.configuration().get("routingObjects", JsonNode.class)
                 .map(StyxServerComponents::readComponents)
-                .orElse(ImmutableMap.of())
+                .orElse(emptyMap())
                 .forEach((name, definition) -> {
                     routeObjectStore.insert(name, RoutingObjectRecord.Companion.create(
                             definition.type(),
@@ -175,7 +174,7 @@ public class StyxServerComponents {
 
         this.environment.configuration().get("providers", JsonNode.class)
                 .map(StyxServerComponents::readComponents)
-                .orElse(ImmutableMap.of())
+                .orElse(emptyMap())
                 .forEach((name, definition) -> {
                     LOGGER.warn("Loading provider: " + name + ": " + definition);
                     StyxService provider = Builtins.build(name, definition, providerObjectStore, BUILTIN_SERVICE_PROVIDER_FACTORIES, routingObjectContext);
@@ -185,7 +184,7 @@ public class StyxServerComponents {
 
         this.environment.configuration().get("servers", JsonNode.class)
                 .map(StyxServerComponents::readComponents)
-                .orElse(ImmutableMap.of())
+                .orElse(emptyMap())
                 .forEach((name, definition) -> {
                     LOGGER.warn("Loading styx server: " + name + ": " + definition);
                     InetServer provider = Builtins.buildServer(name, definition, serverObjectStore, BUILTIN_SERVER_FACTORIES, routingObjectContext);
@@ -276,10 +275,7 @@ public class StyxServerComponents {
             return configServices;
         }
 
-        return new ImmutableMap.Builder<String, StyxService>()
-                .putAll(configServices)
-                .putAll(additionalServices)
-                .build();
+        return copyToUnmodifiableMap(configServices, additionalServices);
     }
 
     /**

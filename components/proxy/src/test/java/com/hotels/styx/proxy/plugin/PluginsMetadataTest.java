@@ -18,7 +18,6 @@ package com.hotels.styx.proxy.plugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.common.Pair;
 import com.hotels.styx.spi.config.SpiExtension;
 import com.hotels.styx.spi.config.SpiExtensionFactory;
@@ -31,6 +30,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -58,9 +59,9 @@ public class PluginsMetadataTest {
 
     @Test
     public void throwsExceptionIfActivePluginDoesNotExist() throws IOException {
-        Map<String, SpiExtension> plugins = ImmutableMap.of(
-                "one", pluginMetadata(),
-                "two", pluginMetadata()
+        Map<String, SpiExtension> plugins = unmodifiableMapOf(
+                pair("one", pluginMetadata()),
+                pair("two", pluginMetadata())
         );
 
         assertThrows(IllegalArgumentException.class,

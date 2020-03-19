@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.api;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,6 +22,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
@@ -207,10 +209,10 @@ public class LiveHttpRequestTest {
 
         assertThat(req.queryParamNames(), containsInAnyOrder("foo", "abc"));
 
-        assertThat(req.queryParams(), isMap(ImmutableMap.of(
-                "foo", asList("bar", "hello"),
-                "abc", singletonList("def")
-        )));
+        Map<String, List<String>> expected = new HashMap<>();
+        expected.put("foo", asList("bar", "hello"));
+        expected.put("abc", singletonList("def"));
+        assertThat(req.queryParams(), isMap(expected));
     }
 
     @Test

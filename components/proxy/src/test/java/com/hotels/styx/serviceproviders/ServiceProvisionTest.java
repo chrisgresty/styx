@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.serviceproviders;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.StyxConfig;
 import com.hotels.styx.api.Environment;
 import com.hotels.styx.api.configuration.Configuration;
@@ -32,6 +31,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.serviceproviders.ServiceProvision.loadRetryPolicy;
 import static com.hotels.styx.serviceproviders.ServiceProvision.loadServices;
 import static com.hotels.styx.support.ResourcePaths.fixturesHome;
@@ -169,10 +170,10 @@ public class ServiceProvisionTest {
     public void servicesReturnCorrectlyFromCall() {
         Map<String, String> services = loadServices(environment.configuration(), environment, "multi", String.class);
 
-        assertThat(services, isMap(ImmutableMap.of(
-                "one", "valueNumber1",
-                "two", "valueNumber2",
-                "three", "valueNumber3"
+        assertThat(services, isMap(unmodifiableMapOf(
+                pair("one", "valueNumber1"),
+                pair("two", "valueNumber2"),
+                pair("three", "valueNumber3")
         )));
     }
 

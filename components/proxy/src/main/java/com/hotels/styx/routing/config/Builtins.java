@@ -15,11 +15,10 @@
  */
 package com.hotels.styx.routing.config;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.ExecutorFactory;
 import com.hotels.styx.InetServer;
-import com.hotels.styx.StyxObjectRecord;
 import com.hotels.styx.NettyExecutor;
+import com.hotels.styx.StyxObjectRecord;
 import com.hotels.styx.api.Eventual;
 import com.hotels.styx.api.HttpInterceptor;
 import com.hotels.styx.api.extension.service.spi.StyxService;
@@ -50,9 +49,12 @@ import java.util.Map;
 
 import static com.hotels.styx.api.HttpResponse.response;
 import static com.hotels.styx.api.HttpResponseStatus.NOT_FOUND;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.common.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.singletonMap;
 
 /**
  * Contains mappings of builtin routing object and interceptor names to their factory methods.
@@ -71,37 +73,38 @@ public final class Builtins {
 
     public static final String REWRITE = "Rewrite";
 
-    public static final ImmutableMap<String, Schema.FieldType> BUILTIN_HANDLER_SCHEMAS;
-    public static final ImmutableMap<String, RoutingObjectFactory> BUILTIN_HANDLER_FACTORIES;
+    public static final Map<String, Schema.FieldType> BUILTIN_HANDLER_SCHEMAS;
+    public static final Map<String, RoutingObjectFactory> BUILTIN_HANDLER_FACTORIES;
 
-    public static final ImmutableMap<String, HttpInterceptorFactory> INTERCEPTOR_FACTORIES =
-            ImmutableMap.of(REWRITE, new RewriteInterceptor.Factory());
+    public static final Map<String, HttpInterceptorFactory> INTERCEPTOR_FACTORIES =
+            singletonMap(REWRITE, new RewriteInterceptor.Factory());
 
-    public static final ImmutableMap<String, Schema.FieldType> INTERCEPTOR_SCHEMAS =
-            ImmutableMap.of(REWRITE, RewriteInterceptor.SCHEMA);
+    public static final Map<String, Schema.FieldType> INTERCEPTOR_SCHEMAS =
+            singletonMap(REWRITE, RewriteInterceptor.SCHEMA);
 
-    public static final ImmutableMap<String, ServiceProviderFactory> BUILTIN_SERVICE_PROVIDER_FACTORIES =
-            ImmutableMap.of(HEALTH_CHECK_MONITOR, new HealthCheckMonitoringServiceFactory(),
-                    YAML_FILE_CONFIGURATION_SERVICE, new YamlFileConfigurationServiceFactory()
-            );
+    public static final Map<String, ServiceProviderFactory> BUILTIN_SERVICE_PROVIDER_FACTORIES =
+            unmodifiableMapOf(
+                    pair(HEALTH_CHECK_MONITOR, new HealthCheckMonitoringServiceFactory()),
+                    pair(YAML_FILE_CONFIGURATION_SERVICE, new YamlFileConfigurationServiceFactory()));
 
-    public static final ImmutableMap<String, Schema.FieldType> BUILTIN_SERVICE_PROVIDER_SCHEMAS =
-            ImmutableMap.of(HEALTH_CHECK_MONITOR, HealthCheckMonitoringService.SCHEMA,
-                    YAML_FILE_CONFIGURATION_SERVICE, YamlFileConfigurationService.SCHEMA);
+    public static final Map<String, Schema.FieldType> BUILTIN_SERVICE_PROVIDER_SCHEMAS =
+            unmodifiableMapOf(
+                    pair(HEALTH_CHECK_MONITOR, HealthCheckMonitoringService.SCHEMA),
+                    pair(YAML_FILE_CONFIGURATION_SERVICE, YamlFileConfigurationService.SCHEMA));
 
-    public static final ImmutableMap<String, StyxServerFactory> BUILTIN_SERVER_FACTORIES = ImmutableMap.of(
+    public static final Map<String, StyxServerFactory> BUILTIN_SERVER_FACTORIES = singletonMap(
             "HttpServer", new StyxHttpServerFactory()
     );
 
-    public static final ImmutableMap<String, Schema.FieldType> BUILTIN_SERVER_SCHEMAS = ImmutableMap.of(
+    public static final Map<String, Schema.FieldType> BUILTIN_SERVER_SCHEMAS = singletonMap(
             "HttpServer", StyxHttpServer.SCHEMA
     );
 
-    public static final ImmutableMap<String, ExecutorFactory> BUILTIN_EXECUTOR_FACTORIES = ImmutableMap.of(
+    public static final Map<String, ExecutorFactory> BUILTIN_EXECUTOR_FACTORIES = singletonMap(
             "NettyExecutor", new NettyExecutorFactory()
     );
 
-    public static final ImmutableMap<String, Schema.FieldType> BUILTIN_EXECUTOR_SCHEMAS = ImmutableMap.of(
+    public static final Map<String, Schema.FieldType> BUILTIN_EXECUTOR_SCHEMAS = singletonMap(
             "NettyExecutor", NettyExecutorFactory.SCHEMA
     );
 
@@ -113,25 +116,23 @@ public final class Builtins {
 
 
     static {
-        BUILTIN_HANDLER_FACTORIES = ImmutableMap.<String, RoutingObjectFactory>builder()
-                .put(STATIC_RESPONSE, new StaticResponseHandler.Factory())
-                .put(CONDITION_ROUTER, new ConditionRouter.Factory())
-                .put(INTERCEPTOR_PIPELINE, new HttpInterceptorPipeline.Factory())
-                .put(PROXY_TO_BACKEND, new ProxyToBackend.Factory())
-                .put(PATH_PREFIX_ROUTER, new PathPrefixRouter.Factory())
-                .put(HOST_PROXY, new HostProxy.Factory())
-                .put(LOAD_BALANCING_GROUP, new LoadBalancingGroup.Factory())
-                .build();
+        BUILTIN_HANDLER_FACTORIES = unmodifiableMapOf(
+                pair(STATIC_RESPONSE, new StaticResponseHandler.Factory()),
+                pair(CONDITION_ROUTER, new ConditionRouter.Factory()),
+                pair(INTERCEPTOR_PIPELINE, new HttpInterceptorPipeline.Factory()),
+                pair(PROXY_TO_BACKEND, new ProxyToBackend.Factory()),
+                pair(PATH_PREFIX_ROUTER, new PathPrefixRouter.Factory()),
+                pair(HOST_PROXY, new HostProxy.Factory()),
+                pair(LOAD_BALANCING_GROUP, new LoadBalancingGroup.Factory()));
 
-        BUILTIN_HANDLER_SCHEMAS = ImmutableMap.<String, Schema.FieldType>builder()
-                .put(STATIC_RESPONSE, StaticResponseHandler.SCHEMA)
-                .put(CONDITION_ROUTER, ConditionRouter.SCHEMA)
-                .put(INTERCEPTOR_PIPELINE, HttpInterceptorPipeline.SCHEMA)
-                .put(PROXY_TO_BACKEND, ProxyToBackend.SCHEMA)
-                .put(PATH_PREFIX_ROUTER, PathPrefixRouter.SCHEMA)
-                .put(HOST_PROXY, HostProxy.SCHEMA)
-                .put(LOAD_BALANCING_GROUP,  LoadBalancingGroup.Companion.getSCHEMA())
-                .build();
+        BUILTIN_HANDLER_SCHEMAS = unmodifiableMapOf(
+                pair(STATIC_RESPONSE, StaticResponseHandler.SCHEMA),
+                pair(CONDITION_ROUTER, ConditionRouter.SCHEMA),
+                pair(INTERCEPTOR_PIPELINE, HttpInterceptorPipeline.SCHEMA),
+                pair(PROXY_TO_BACKEND, ProxyToBackend.SCHEMA),
+                pair(PATH_PREFIX_ROUTER, PathPrefixRouter.SCHEMA),
+                pair(HOST_PROXY, HostProxy.SCHEMA),
+                pair(LOAD_BALANCING_GROUP,  LoadBalancingGroup.Companion.getSCHEMA()));
     }
 
     private Builtins() {

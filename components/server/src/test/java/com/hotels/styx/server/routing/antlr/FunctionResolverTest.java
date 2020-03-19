@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.server.routing.antlr;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.api.HttpInterceptor;
 import com.hotels.styx.api.LiveHttpRequest;
 import com.hotels.styx.api.RequestCookie;
@@ -25,6 +24,8 @@ import java.util.Map;
 
 import static com.hotels.styx.api.LiveHttpRequest.get;
 import static com.hotels.styx.api.RequestCookie.requestCookie;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.support.Support.requestContext;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -34,13 +35,13 @@ import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FunctionResolverTest {
-    private final Map<String, Function0> zeroArgumentFunctions = ImmutableMap.of(
-            "path", (request, context) -> request.path(),
-            "method", (request, context) -> request.method().name());
+    private final Map<String, Function0> zeroArgumentFunctions = unmodifiableMapOf(
+            pair("path", (request, context) -> request.path()),
+            pair("method", (request, context) -> request.method().name()));
 
-    private final Map<String, Function1> oneArgumentFunctions = ImmutableMap.of(
-            "header", (request, context, name) -> request.header(name).orElse(""),
-            "cookie", (request, context, name) -> request.cookie(name).map(RequestCookie::value).orElse(""));
+    private final Map<String, Function1> oneArgumentFunctions = unmodifiableMapOf(
+            pair("header", (request, context, name) -> request.header(name).orElse("")),
+            pair("cookie", (request, context, name) -> request.cookie(name).map(RequestCookie::value).orElse("")));
 
     private final FunctionResolver functionResolver = new FunctionResolver(zeroArgumentFunctions, oneArgumentFunctions);
 

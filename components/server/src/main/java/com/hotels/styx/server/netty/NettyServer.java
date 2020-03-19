@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.server.netty;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.InetServer;
 import com.hotels.styx.NettyExecutor;
 import com.hotels.styx.api.Eventual;
@@ -31,6 +30,7 @@ import org.slf4j.Logger;
 
 import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -77,7 +77,7 @@ final class NettyServer extends AbstractStyxService implements InetServer {
 
     @Override
     public Map<String, HttpHandler> adminInterfaceHandlers(String namespace) {
-        return ImmutableMap.of(
+        return Collections.singletonMap(
                 "port", (request, response) -> Eventual.of(
                         response(OK)
                                 .disableCaching()

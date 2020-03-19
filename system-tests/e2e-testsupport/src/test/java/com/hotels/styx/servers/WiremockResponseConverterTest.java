@@ -19,7 +19,6 @@ import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.api.HttpHeader;
 import com.hotels.styx.api.HttpResponse;
 import org.junit.jupiter.api.Test;
@@ -33,6 +32,8 @@ import java.util.stream.StreamSupport;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.hotels.styx.api.HttpResponseStatus.CREATED;
 import static com.hotels.styx.api.HttpResponseStatus.OK;
+import static com.hotels.styx.common.Collections.unmodifiableMapOf;
+import static com.hotels.styx.common.Pair.pair;
 import static com.hotels.styx.servers.WiremockResponseConverter.toStyxResponse;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -65,9 +66,9 @@ public class WiremockResponseConverterTest {
         assertThat(styxResponse.status(), is(OK));
         Map<String, String> actual = headersAsMap(styxResponse);
 
-        assertThat(actual, is(ImmutableMap.of(
-                "Transfer-Encoding", "chunked",
-                "Content-Type", "application/json")));
+        assertThat(actual, is(unmodifiableMapOf(
+                pair("Transfer-Encoding", "chunked"),
+                pair("Content-Type", "application/json"))));
         assertThat(styxResponse.bodyAs(UTF_8), is("{ \"count\" : 0, \"requestJournalDisabled\" : false}"));
         assertThat(headerCount(styxResponse.headers()), is(2));
     }

@@ -15,7 +15,6 @@
  */
 package com.hotels.styx.testapi;
 
-import com.google.common.collect.ImmutableMap;
 import com.hotels.styx.StyxConfig;
 import com.hotels.styx.admin.AdminServerConfig;
 import com.hotels.styx.api.MetricRegistry;
@@ -33,6 +32,7 @@ import com.hotels.styx.startup.extensions.ConfiguredPluginFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public final class StyxServer {
         StyxServerComponents config = new StyxServerComponents.Builder()
                 .styxConfig(styxConfig(builder))
                 .pluginFactories(builder.pluginFactories)
-                .additionalServices(ImmutableMap.of("backendServiceRegistry", new RegistryServiceAdapter(backendServicesRegistry)))
+                .additionalServices(Collections.singletonMap("backendServiceRegistry", new RegistryServiceAdapter(backendServicesRegistry)))
                 .build();
 
         metricRegistry = config.environment().metricRegistry();

@@ -17,7 +17,6 @@ package com.hotels.styx.client;
 
 import com.codahale.metrics.Gauge;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.hotels.styx.api.Eventual;
@@ -46,23 +45,25 @@ import org.slf4j.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.Closeable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.hotels.styx.common.Collections.copyToUnmodifiableSet;
-import static com.hotels.styx.common.Collections.unmodifiableSetOf;
 import static com.hotels.styx.api.extension.RemoteHost.remoteHost;
 import static com.hotels.styx.client.OriginsInventory.OriginState.ACTIVE;
 import static com.hotels.styx.client.OriginsInventory.OriginState.DISABLED;
 import static com.hotels.styx.client.OriginsInventory.OriginState.INACTIVE;
 import static com.hotels.styx.client.connectionpool.ConnectionPools.simplePoolFactory;
+import static com.hotels.styx.common.Collections.copyToUnmodifiableSet;
+import static com.hotels.styx.common.Collections.unmodifiableSetOf;
 import static com.hotels.styx.common.Preconditions.checkArgument;
 import static com.hotels.styx.common.StyxFutures.await;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
@@ -281,7 +282,7 @@ public final class OriginsInventory
     private void handleCloseEvent() {
         if (closed.compareAndSet(false, true)) {
             origins.values().forEach(host -> removeMonitoredEndpoint(host.origin.id()));
-            this.origins = ImmutableMap.of();
+            this.origins = emptyMap();
             notifyStateChange();
             eventBus.unregister(this);
         }
@@ -569,16 +570,16 @@ public final class OriginsInventory
     }
 
     private class OriginChanges {
-        ImmutableMap.Builder<Id, MonitoredOrigin> monitoredOrigins = ImmutableMap.builder();
+        Map<Id, MonitoredOrigin> monitoredOrigins = new HashMap<>();
         AtomicBoolean changed = new AtomicBoolean(false);
 
         void addOrReplaceOrigin(Id originId, MonitoredOrigin origin) {
-            monitoredOrigins.put(originId, origin);
+            monitoredOrigins.put(requireNonNull(originId), requireNonNull(origin));
             changed.set(true);
         }
 
         void keepExistingOrigin(Id originId, MonitoredOrigin origin) {
-            monitoredOrigins.put(originId, origin);
+            monitoredOrigins.put(requireNonNull(originId), requireNonNull(origin));
         }
 
         void noteRemovedOrigin() {
@@ -590,7 +591,7 @@ public final class OriginsInventory
         }
 
         Map<Id, MonitoredOrigin> updatedOrigins() {
-            return monitoredOrigins.build();
+            return unmodifiableMap(monitoredOrigins);
         }
     }
 }

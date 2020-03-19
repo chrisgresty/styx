@@ -18,8 +18,11 @@ package com.hotels.styx.common;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -28,12 +31,16 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.emptyIterator;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * {@link Collection}s cannot contain <code>null</code> elements, and will throw a {@link NullPointerException} if one is encountered.
@@ -64,6 +71,41 @@ public final class Collections {
 
     public static <T> Set<T> unmodifiableSetOf(T... elements) {
         return unmodifiableSet(Arrays.stream(elements).map(Objects::requireNonNull).collect(toCollection(() -> new LinkedHashSet<>())));
+    }
+
+    public static <K, V> Map<K, V> copyToUnmodifiableMap(Map<? extends K, ? extends V> map) {
+        return unmodifiableMap(map.entrySet().stream()
+                .filter(e -> {
+                    requireNonNull(e.getKey());
+                    requireNonNull(e.getValue());
+                    return true;
+                })
+                .collect(toMap(Entry::getKey, Entry::getValue, (x, y) -> y, LinkedHashMap::new)));
+    }
+
+    public static <K, V> Map<K, V> copyToUnmodifiableMap(Map<? extends K, ? extends V> map1, Map<? extends K, ? extends V> map2) {
+        return unmodifiableMap(Stream.concat(map1.entrySet().stream(), map2.entrySet().stream())
+                .filter(e -> {
+                    requireNonNull(e.getKey());
+                    requireNonNull(e.getValue());
+                    return true;
+                })
+                .collect(toMap(Entry::getKey, Entry::getValue, (x, y) -> y, LinkedHashMap::new)));
+    }
+
+    public static <K, V> Map<K, V> unmodifiableMapOf(Pair<? extends K, ? extends V>... pairs) {
+        if (pairs.length == 0) {
+            return emptyMap();
+        } else if (pairs.length == 1) {
+            return singletonMap(pairs[0].key(), pairs[0].value());
+        } else {
+            return unmodifiableMap(Arrays.stream(pairs)
+                    .filter(e -> {
+                        requireNonNull(e.key());
+                        requireNonNull(e.value());
+                        return true; })
+                    .collect(toMap(Pair::key, Pair::value, (x, y) -> y, LinkedHashMap::new)));
+        }
     }
 
     public static <T> Stream<T> stream(Iterator<? extends T> iterator) {

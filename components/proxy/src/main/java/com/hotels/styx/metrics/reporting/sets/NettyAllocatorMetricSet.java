@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import io.netty.buffer.ByteBufAllocatorMetric;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.collect.ImmutableMap.copyOf;
 import static com.hotels.styx.api.metrics.codahale.CodaHaleMetricRegistry.name;
+import static com.hotels.styx.common.Collections.copyToUnmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -45,6 +45,6 @@ public class NettyAllocatorMetricSet implements MetricSet {
         Map<String, Metric> gauges = new HashMap<>();
         gauges.put(name(namespace, "usedDirectMemory"), (Gauge<Long>) metric::usedDirectMemory);
         gauges.put(name(namespace, "usedHeapMemory"), (Gauge<Long>) metric::usedHeapMemory);
-        return copyOf(gauges);
+        return copyToUnmodifiableMap(gauges);
     }
 }
