@@ -15,21 +15,27 @@
  */
 package com.hotels.styx.common;
 
+import java.io.Serializable;
+import java.util.AbstractList;
+import java.util.AbstractSequentialList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.RandomAccess;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyIterator;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -250,6 +256,13 @@ public final class Collections {
         };
     }
 
+    public static <F, T> List<T> transform(List<F> fromList,
+                                               Function<? super F, ? extends T> function) {
+        return (fromList instanceof RandomAccess)
+                ? new TransformingRandomAccessList<F, T>(fromList, function)
+                : new TransformingSequentialList<F, T>(fromList, function);
+    }
+
     public static <F, T> Iterable<T> transform(Iterable<F> iterable,
                                                Function<? super F, ? extends T> function) {
         return new Iterable<T>() {
@@ -298,7 +311,7 @@ public final class Collections {
      *
      * @author Louis Wasserman
      */
-    abstract static class TransformedIterator<F, T> implements Iterator<T> {
+    private abstract static class TransformedIterator<F, T> implements Iterator<T> {
         final Iterator<? extends F> backingIterator;
 
         TransformedIterator(Iterator<? extends F> backingIterator) {
@@ -322,4 +335,135 @@ public final class Collections {
             backingIterator.remove();
         }
     }
+
+    /**
+     * An iterator that transforms a backing list iterator; for internal use. This
+     * avoids the object overhead of constructing a {@link com.google.common.base.Function} for internal
+     * methods.
+     *
+     * @author Louis Wasserman
+     */
+    private abstract static class TransformedListIterator<F, T> extends TransformedIterator<F, T>
+            implements ListIterator<T> {
+        TransformedListIterator(ListIterator<? extends F> backingIterator) {
+            super(backingIterator);
+        }
+
+        private ListIterator<? extends F> backingIterator() {
+            return (ListIterator<? extends F>) backingIterator;
+        }
+
+        @Override
+        public final boolean hasPrevious() {
+            return backingIterator().hasPrevious();
+        }
+
+        @Override
+        public final T previous() {
+            return transform(backingIterator().previous());
+        }
+
+        @Override
+        public final int nextIndex() {
+            return backingIterator().nextIndex();
+        }
+
+        @Override
+        public final int previousIndex() {
+            return backingIterator().previousIndex();
+        }
+
+        @Override
+        public void set(T element) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(T element) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+
+    /**
+     * Implementation of a sequential transforming list.
+     */
+    private static class TransformingSequentialList<F, T>
+            extends AbstractSequentialList<T> implements Serializable {
+        final List<F> fromList;
+        final Function<? super F, ? extends T> function;
+
+        TransformingSequentialList(
+                List<F> fromList, Function<? super F, ? extends T> function) {
+            this.fromList = checkNotNull(fromList);
+            this.function = checkNotNull(function);
+        }
+        /**
+         * The default implementation inherited is based on iteration and removal of
+         * each element which can be overkill. That's why we forward this call
+         * directly to the backing list.
+         */
+        @Override public void clear() {
+            fromList.clear();
+        }
+        @Override public int size() {
+            return fromList.size();
+        }
+        @Override public ListIterator<T> listIterator(final int index) {
+            return new TransformedListIterator<F, T>(fromList.listIterator(index)) {
+                @Override
+                T transform(F from) {
+                    return function.apply(from);
+                }
+            };
+        }
+
+        private static final long serialVersionUID = 0;
+    }
+
+    /**
+     * Implementation of a transforming random access list. We try to make as many
+     * of these methods pass-through to the source list as possible so that the
+     * performance characteristics of the source list and transformed list are
+     * similar.
+     */
+    private static class TransformingRandomAccessList<F, T>
+            extends AbstractList<T> implements RandomAccess, Serializable {
+        final List<F> fromList;
+        final Function<? super F, ? extends T> function;
+
+        TransformingRandomAccessList(
+                List<F> fromList, Function<? super F, ? extends T> function) {
+            this.fromList = checkNotNull(fromList);
+            this.function = checkNotNull(function);
+        }
+        @Override public void clear() {
+            fromList.clear();
+        }
+        @Override public T get(int index) {
+            return function.apply(fromList.get(index));
+        }
+        @Override public Iterator<T> iterator() {
+            return listIterator();
+        }
+        @Override public ListIterator<T> listIterator(int index) {
+            return new TransformedListIterator<F, T>(fromList.listIterator(index)) {
+                @Override
+                T transform(F from) {
+                    return function.apply(from);
+                }
+            };
+        }
+        @Override public boolean isEmpty() {
+            return fromList.isEmpty();
+        }
+        @Override public T remove(int index) {
+            return function.apply(fromList.remove(index));
+        }
+        @Override public int size() {
+            return fromList.size();
+        }
+        private static final long serialVersionUID = 0;
+    }
+
 }

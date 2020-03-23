@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import com.codahale.metrics.SlidingWindowReservoir;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.graphite.Graphite;
-import com.google.common.collect.ImmutableSortedMap;
 import com.hotels.styx.support.matchers.LoggingTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +51,8 @@ import static ch.qos.logback.classic.Level.ERROR;
 import static com.hotels.styx.metrics.reporting.graphite.GraphiteReporter.MAX_RETRIES;
 import static com.hotels.styx.metrics.reporting.graphite.GraphiteReporter.forRegistry;
 import static com.hotels.styx.support.matchers.LoggingEventMatcher.loggingEvent;
+import static java.util.Collections.singletonMap;
+import static java.util.Collections.unmodifiableSortedMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -429,11 +430,11 @@ public class GraphiteReporterTest {
 
 
     private static <T> SortedMap<String, T> emptyMap() {
-        return ImmutableSortedMap.of();
+        return unmodifiableSortedMap(emptyMap());
     }
 
     private static <T> SortedMap<String, T> map(String name, T metric) {
-        return ImmutableSortedMap.of(name, metric);
+        return unmodifiableSortedMap(new TreeMap<>(singletonMap(name, metric)));
     }
 
     private static <T> Gauge<T> gauge(T value) {

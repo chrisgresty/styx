@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
  */
 package com.hotels.styx.server.netty.connectors;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import com.hotels.styx.api.HttpResponseStatus;
+import com.hotels.styx.common.Pair;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.hotels.styx.common.Collections.copyToUnmodifiableMap;
+import static com.hotels.styx.common.Pair.pair;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -36,17 +37,18 @@ import static org.slf4j.LoggerFactory.getLogger;
 final class ExceptionStatusMapper {
     private static final Logger LOG = getLogger(ExceptionStatusMapper.class);
 
-    private final Multimap<HttpResponseStatus, Class<? extends Exception>> multimap;
+    private final Map<HttpResponseStatus, List<Class<? extends Exception>>> multimap;
 
     private ExceptionStatusMapper(Builder builder) {
-        this.multimap = ImmutableMultimap.copyOf(builder.multimap);
+        this.multimap = copyToUnmodifiableMap(builder.multimap);
     }
 
     Optional<HttpResponseStatus> statusFor(Throwable throwable) {
-        List<HttpResponseStatus> matchingStatuses = this.multimap.entries().stream()
-                .filter(entry -> entry.getValue().isInstance(throwable))
-                .sorted(comparing(entry -> entry.getKey().code()))
-                .map(Map.Entry::getKey)
+        List<HttpResponseStatus> matchingStatuses = this.multimap.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream().map(clazz -> pair(entry.getKey(), clazz)))
+                .filter(pair -> pair.value().isInstance(throwable))
+                .sorted(comparing(pair -> pair.key().code()))
+                .map(Pair::key)
                 .collect(toList());
 
         if (matchingStatuses.size() > 1) {
@@ -58,15 +60,19 @@ final class ExceptionStatusMapper {
     }
 
     static final class Builder {
-        private final Multimap<HttpResponseStatus, Class<? extends Exception>> multimap;
+        private final Map<HttpResponseStatus, List<Class<? extends Exception>>> multimap;
 
         public Builder() {
-            this.multimap = HashMultimap.create();
+            this.multimap = new HashMap<>();
         }
 
         @SafeVarargs
         public final Builder add(HttpResponseStatus status, Class<? extends Exception>... classes) {
-            multimap.putAll(status, asList(classes));
+            if (multimap.containsKey(status)) {
+                multimap.get(status).addAll(asList(classes));
+            } else {
+                multimap.put(status, asList(classes));
+            }
             return this;
         }
 

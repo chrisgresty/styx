@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2018 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.hotels.styx.common.io;
 
-import com.google.common.collect.Iterators;
 import com.hotels.styx.api.Resource;
+import com.hotels.styx.common.Collections;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,10 +24,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import static java.util.Spliterator.ORDERED;
-import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
 
 /**
  * A resource index that scans the class path for the resources.
@@ -49,7 +46,7 @@ public class ClasspathResourceIndex implements ResourceIndex {
 
             return enumerationStream(resources)
                     .map(url -> resourceIteratorFactory.createIterator(url, classpath, suffix))
-                    .flatMap(ClasspathResourceIndex::iteratorStream)
+                    .flatMap(Collections::stream)
                     .collect(toList());
 
         } catch (IOException e) {
@@ -58,10 +55,16 @@ public class ClasspathResourceIndex implements ResourceIndex {
     }
 
     private static <T> Stream<T> enumerationStream(Enumeration<T> enumeration) {
-        return iteratorStream(Iterators.forEnumeration(enumeration));
-    }
+        return Collections.stream(new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+                return enumeration.hasMoreElements();
+            }
 
-    private static <T> Stream<T> iteratorStream(Iterator<T> iterator) {
-        return stream(spliteratorUnknownSize(iterator, ORDERED), false);
+            @Override
+            public T next() {
+                return enumeration.nextElement();
+            }
+        });
     }
 }

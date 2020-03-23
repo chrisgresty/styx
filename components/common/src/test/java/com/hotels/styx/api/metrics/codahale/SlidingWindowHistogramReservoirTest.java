@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013-2019 Expedia Inc.
+  Copyright (C) 2013-2020 Expedia Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 package com.hotels.styx.api.metrics.codahale;
 
 import com.codahale.metrics.Snapshot;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
-import com.google.common.primitives.Longs;
 import com.hotels.styx.api.Clock;
 import com.hotels.styx.api.metrics.SlidingWindowHistogram;
 import org.junit.jupiter.api.Test;
@@ -99,11 +95,16 @@ public class SlidingWindowHistogramReservoirTest {
     public void snapshotExposesSamplesAsArray() {
         SlidingWindowHistogramReservoir reservoir = reservoirWithSamples(1, 100);
 
-        assertThat(reservoir.getSnapshot().getValues(), is(toArray(Range.closed(1L, 100L))));
+        assertThat(reservoir.getSnapshot().getValues(), is(closedRange(1L, 100L)));
     }
 
-    private long[] toArray(Range<Long> range) {
-        return Longs.toArray(ContiguousSet.create(range, DiscreteDomain.longs()));
+    private long[] closedRange(long lower, long upper) {
+        int length = (int) (upper - lower + 1);
+        long[] range = new long[length];
+        for (int i = 0; i < length; i++) {
+            range[i] = lower + i;
+        }
+        return range;
     }
 
     private SlidingWindowHistogramReservoir reservoirWithSamples(int from, int to) {

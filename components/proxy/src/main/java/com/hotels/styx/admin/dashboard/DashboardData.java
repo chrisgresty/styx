@@ -21,7 +21,6 @@ import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.hotels.styx.Version;
@@ -218,7 +217,7 @@ public class DashboardData {
 
             /* IMPORTANT NOTE: We are using guava transforms here instead of java 8 stream-map-collect because
               the guava transforms are backed by the original objects and reflect changes in them. */
-            this.status = Lists.transform(origin, Origin::status);
+            this.status = transform(origin, Origin::status);
             this.connectionsPoolsAggregate = new ConnectionsPoolsAggregate(transform(origin, Origin::connectionsPool));
 
             String prefix = format("origins.%s.requests.response.status", name);

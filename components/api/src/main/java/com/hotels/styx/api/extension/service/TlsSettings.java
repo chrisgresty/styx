@@ -15,11 +15,10 @@
  */
 package com.hotels.styx.api.extension.service;
 
-import com.google.common.collect.Sets;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -224,7 +223,10 @@ public class TlsSettings {
          * @return
          */
         public Builder additionalCerts(Certificate... certificates) {
-            this.additionalCerts = Sets.newHashSet(certificates);
+            this.additionalCerts = new HashSet<>(certificates.length * 4 / 3);
+            for (Certificate cert : certificates) {
+                additionalCerts.add(cert);
+            }
             return this;
         }
 
