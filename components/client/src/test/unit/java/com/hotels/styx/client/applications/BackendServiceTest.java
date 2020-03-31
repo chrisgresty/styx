@@ -23,14 +23,14 @@ import java.util.Set;
 
 import static com.hotels.styx.api.extension.Origin.newOriginBuilder;
 import static com.hotels.styx.api.extension.service.BackendService.DEFAULT_RESPONSE_TIMEOUT_MILLIS;
-import static com.hotels.styx.common.Collections.unmodifiableSetOf;
+import static com.hotels.styx.common.Collections.setOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BackendServiceTest {
-    Set<Origin> originSet = unmodifiableSetOf(newOriginBuilder("localhost", 123).build());
+    Set<Origin> originSet = setOf(newOriginBuilder("localhost", 123).build());
 
     @Test
     public void usesResponseTimeoutOfZeroToIndicateDefaultValue() {

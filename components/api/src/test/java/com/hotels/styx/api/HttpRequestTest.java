@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.hotels.styx.api.Collections.listOf;
 import static com.hotels.styx.api.HttpHeader.header;
 import static com.hotels.styx.api.HttpHeaderNames.CONTENT_LENGTH;
 import static com.hotels.styx.api.HttpHeaderNames.HOST;
@@ -47,8 +48,6 @@ import static com.hotels.styx.support.matchers.MapMatcher.isMap;
 import static java.lang.String.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_16;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -307,8 +306,8 @@ public class HttpRequestTest {
         assertThat(req.queryParamNames(), containsInAnyOrder("foo", "abc"));
 
         Map<String, List<String>> expected = new HashMap<>();
-        expected.put("foo", asList("bar", "hello"));
-        expected.put("abc", singletonList("def"));
+        expected.put("foo", listOf("bar", "hello"));
+        expected.put("abc", listOf("def"));
         assertThat(req.queryParams(), isMap(expected));
     }
 

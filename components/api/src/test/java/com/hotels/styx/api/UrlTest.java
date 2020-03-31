@@ -28,13 +28,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.hotels.styx.api.Collections.listOf;
 import static com.hotels.styx.api.Url.Authority.authority;
 import static com.hotels.styx.api.Url.Builder.url;
 import static com.hotels.styx.support.matchers.IsOptional.isAbsent;
 import static com.hotels.styx.support.matchers.IsOptional.isValue;
 import static com.hotels.styx.support.matchers.MapMatcher.isMap;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
@@ -121,8 +120,8 @@ public class UrlTest {
         assertThat(url.queryParamNames(), containsInAnyOrder("foo", "abc"));
 
         Map<String, List<String>> expected = new HashMap<>();
-        expected.put("foo", asList("bar", "hello"));
-        expected.put("abc", singletonList("def"));
+        expected.put("foo", listOf("bar", "hello"));
+        expected.put("abc", listOf("def"));
         assertThat(url.queryParams(), isMap(expected));
     }
 

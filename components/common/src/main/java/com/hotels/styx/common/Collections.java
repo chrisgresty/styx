@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -39,6 +40,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyIterator;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -49,34 +53,50 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 /**
- * {@link Collection}s cannot contain <code>null</code> elements, and will throw a {@link NullPointerException} if one is encountered.
+ * {@link Collection}s created by these methods are unmodifiable shallow copies - the source data (Iterable, Iterator,
+ * array) can be changed without affecting the copy. These collections cannot contain <code>null</code> elements,
+ * and will throw a {@link NullPointerException} if one is encountered.
  *
  * {@link Set}s, in addition, preserve ordering of source sets.
  */
 public final class Collections {
 
-    public static <T> List<T> copyToUnmodifiableList(Iterator<? extends T> iterator) {
-        return copyToUnmodifiableList(toIterable(iterator));
+    public static <T> List<T> listOf(Iterator<? extends T> iterator) {
+        return listOf(toIterable(iterator));
     }
 
-    public static <T> List<T> copyToUnmodifiableList(Iterable<? extends T> iterable) {
+    public static <T> List<T> listOf(Iterable<? extends T> iterable) {
         return unmodifiableList(stream(iterable).map(Objects::requireNonNull).collect(toList()));
     }
 
-    public static <T> List<T> unmodifiableListOf(T... elements) {
+    @SafeVarargs
+    public static <T> List<T> listOf(T... elements) {
+        if (elements.length == 0) {
+            return emptyList();
+        } else if (elements.length == 1) {
+            return singletonList(elements[0]);
+        }
         return unmodifiableList(Arrays.stream(elements).map(Objects::requireNonNull).collect(toList()));
     }
 
-    public static <T> Set<T> copyToUnmodifiableSet(Iterator<? extends T> iterator) {
-        return copyToUnmodifiableSet(toIterable(iterator));
+    public static <T> Set<T> setOf(Iterator<? extends T> iterator) {
+        return setOf(toIterable(iterator));
     }
 
-    public static <T> Set<T> copyToUnmodifiableSet(Iterable<? extends T> iterable) {
-        return unmodifiableSet(stream(iterable).map(Objects::requireNonNull).collect(toCollection(() -> new LinkedHashSet<>())));
+    public static <T> Set<T> setOf(Iterable<? extends T> iterable) {
+        return unmodifiableSet(stream(iterable).map(Objects::requireNonNull).collect(toOrderedSet()));
     }
 
-    public static <T> Set<T> unmodifiableSetOf(T... elements) {
-        return unmodifiableSet(Arrays.stream(elements).map(Objects::requireNonNull).collect(toCollection(() -> new LinkedHashSet<>())));
+    @SafeVarargs
+    public static <T> Set<T> setOf(T... elements) {
+        if (elements.length == 0) {
+            return emptySet();
+        }
+        return unmodifiableSet(Arrays.stream(elements).map(Objects::requireNonNull).collect(toOrderedSet()));
+    }
+
+    public static <T> Collector<T, ?, ? extends Set<T>> toOrderedSet() {
+        return toCollection(LinkedHashSet::new);
     }
 
     public static <K, V> Map<K, V> copyToUnmodifiableMap(Map<? extends K, ? extends V> map) {
@@ -125,12 +145,11 @@ public final class Collections {
     }
 
     public static String toString(Iterable<?> iterable) {
-        return new StringBuilder("[")
-                .append(stream(iterable)
-                        .map(o -> o == null ? "null" : o.toString())
-                        .collect(joining(", ")))
-                .append("]")
-                .toString();
+        return "["
+                + stream(iterable)
+                .map(o -> o == null ? "null" : o.toString())
+                .collect(joining(", "))
+                + "]";
     }
 
     public static int size(Iterable<?> iterable) {
@@ -172,13 +191,7 @@ public final class Collections {
     }
 
     public static <T> Iterable<T> concat(Iterable<? extends T> a, Iterable<? extends T> b) {
-        return new Iterable<T>() {
-
-            @Override
-            public Iterator<T> iterator() {
-                return concat(a.iterator(), b.iterator());
-            }
-        };
+        return () -> concat(a.iterator(), b.iterator());
     }
 
     /*
@@ -211,9 +224,10 @@ public final class Collections {
      * {@code iterator = Iterators.concat(iterator, suffix);}, since iteration over the
      * resulting iterator has a cubic complexity to the depth of the nesting.
      */
+    @SafeVarargs
     public static <T> Iterator<T> concat(Iterator<? extends T>... inputs) {
         requireNonNull(inputs);
-        Iterator<? extends Iterator<? extends T>> inputIterator = unmodifiableListOf(inputs).iterator();
+        Iterator<? extends Iterator<? extends T>> inputIterator = listOf(inputs).iterator();
 
         return new Iterator<T>() {
             Iterator<? extends T> current = emptyIterator();
@@ -265,17 +279,11 @@ public final class Collections {
 
     public static <F, T> Iterable<T> transform(Iterable<F> iterable,
                                                Function<? super F, ? extends T> function) {
-        return new Iterable<T>() {
+        return () -> new TransformedIterator<F, T>(iterable.iterator()) {
 
             @Override
-            public Iterator<T> iterator() {
-                return new TransformedIterator<F, T>(iterable.iterator()) {
-
-                    @Override
-                    T transform(F from) {
-                        return function.apply(from);
-                    }
-                };
+            T transform(F from) {
+                return function.apply(from);
             }
         };
     }

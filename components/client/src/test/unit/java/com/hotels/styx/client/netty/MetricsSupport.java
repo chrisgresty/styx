@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.hotels.styx.common.Collections.concat;
-import static com.hotels.styx.common.Collections.unmodifiableSetOf;
+import static com.hotels.styx.common.Collections.setOf;
 import static java.util.Collections.singleton;
 
 /**
@@ -50,7 +50,7 @@ public class MetricsSupport {
         }
 
         public static <T> Matcher<MetricRegistry> hasNotReceivedUpdatesExcept(String... updatedMetrics) {
-            return new IsNotUpdated(unmodifiableSetOf(updatedMetrics));
+            return new IsNotUpdated(setOf(updatedMetrics));
         }
 
         @Override

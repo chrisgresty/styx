@@ -27,9 +27,19 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
+import static com.hotels.styx.api.Collections.listOf;
 import static com.hotels.styx.api.HttpHeader.header;
 import static com.hotels.styx.api.HttpHeaderNames.CONTENT_LENGTH;
-import static com.hotels.styx.api.HttpResponseStatus.*;
+import static com.hotels.styx.api.HttpResponseStatus.BAD_GATEWAY;
+import static com.hotels.styx.api.HttpResponseStatus.BAD_REQUEST;
+import static com.hotels.styx.api.HttpResponseStatus.CREATED;
+import static com.hotels.styx.api.HttpResponseStatus.GATEWAY_TIMEOUT;
+import static com.hotels.styx.api.HttpResponseStatus.MOVED_PERMANENTLY;
+import static com.hotels.styx.api.HttpResponseStatus.MULTIPLE_CHOICES;
+import static com.hotels.styx.api.HttpResponseStatus.NO_CONTENT;
+import static com.hotels.styx.api.HttpResponseStatus.OK;
+import static com.hotels.styx.api.HttpResponseStatus.SEE_OTHER;
+import static com.hotels.styx.api.HttpResponseStatus.TEMPORARY_REDIRECT;
 import static com.hotels.styx.api.HttpVersion.HTTP_1_0;
 import static com.hotels.styx.api.HttpVersion.HTTP_1_1;
 import static com.hotels.styx.api.ResponseCookie.responseCookie;
@@ -38,8 +48,6 @@ import static com.hotels.styx.support.matchers.IsOptional.isAbsent;
 import static com.hotels.styx.support.matchers.IsOptional.isValue;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -372,7 +380,7 @@ public class LiveHttpResponseTest {
     public void transformsWithCookieList() {
         LiveHttpResponse response = response().build()
                 .newBuilder()
-                .cookies(singletonList(responseCookie("x", "y").build()))
+                .cookies(listOf(responseCookie("x", "y").build()))
                 .build();
 
         assertEquals(response.cookie("x"), Optional.of(responseCookie("x", "y").build()));
@@ -392,7 +400,7 @@ public class LiveHttpResponseTest {
     public void transformerAddsCookiesList() {
         LiveHttpResponse response = response().build()
                 .newBuilder()
-                .addCookies(singletonList(responseCookie("x", "y").build()))
+                .addCookies(listOf(responseCookie("x", "y").build()))
                 .build();
 
         assertEquals(response.cookie("x"), Optional.of(responseCookie("x", "y").build()));
@@ -401,7 +409,7 @@ public class LiveHttpResponseTest {
     @Test
     public void transformerRemovesCookies() {
         LiveHttpResponse response = response()
-                .addCookies(singletonList(responseCookie("x", "y").build()))
+                .addCookies(listOf(responseCookie("x", "y").build()))
                 .build()
                 .newBuilder()
                 .removeCookies("x")
@@ -413,10 +421,10 @@ public class LiveHttpResponseTest {
     @Test
     public void transformerRemovesCookiesWithList() {
         LiveHttpResponse response = response()
-                .addCookies(asList(responseCookie("x", "y").build()))
+                .addCookies(listOf(responseCookie("x", "y").build()))
                 .build()
                 .newBuilder()
-                .removeCookies(asList("x"))
+                .removeCookies(listOf("x"))
                 .build();
 
         assertEquals(response.cookie("x"), Optional.empty());

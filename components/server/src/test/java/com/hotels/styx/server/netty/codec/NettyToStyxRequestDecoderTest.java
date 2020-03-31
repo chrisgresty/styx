@@ -53,7 +53,7 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 import static com.hotels.styx.api.RequestCookie.requestCookie;
-import static com.hotels.styx.common.Collections.copyToUnmodifiableSet;
+import static com.hotels.styx.common.Collections.setOf;
 import static com.hotels.styx.common.Collections.size;
 import static com.hotels.styx.server.UniqueIdSuppliers.fixedUniqueIdSupplier;
 import static com.hotels.styx.support.netty.HttpMessageSupport.httpMessageToBytes;
@@ -286,7 +286,7 @@ public class NettyToStyxRequestDecoderTest {
                         requestCookie("guid", "xxxxx-xxx-xxx-xxx-xxxxxxx")
                 )
                 .build();
-        assertThat(copyToUnmodifiableSet(styxRequest.cookies()), is(copyToUnmodifiableSet(expected.cookies())));
+        assertThat(setOf(styxRequest.cookies()), is(setOf(expected.cookies())));
     }
 
     @Test
@@ -311,7 +311,7 @@ public class NettyToStyxRequestDecoderTest {
                         requestCookie("guid", "a,b")
                 )
                 .build();
-        assertThat(copyToUnmodifiableSet(styxRequest.cookies()), is(copyToUnmodifiableSet(expected.cookies())));
+        assertThat(setOf(styxRequest.cookies()), is(setOf(expected.cookies())));
     }
 
     @Test

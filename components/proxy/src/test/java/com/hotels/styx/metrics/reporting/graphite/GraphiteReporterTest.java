@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -51,6 +52,7 @@ import static ch.qos.logback.classic.Level.ERROR;
 import static com.hotels.styx.metrics.reporting.graphite.GraphiteReporter.MAX_RETRIES;
 import static com.hotels.styx.metrics.reporting.graphite.GraphiteReporter.forRegistry;
 import static com.hotels.styx.support.matchers.LoggingEventMatcher.loggingEvent;
+import static java.util.Collections.emptySortedMap;
 import static java.util.Collections.singletonMap;
 import static java.util.Collections.unmodifiableSortedMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -430,7 +432,7 @@ public class GraphiteReporterTest {
 
 
     private static <T> SortedMap<String, T> emptyMap() {
-        return unmodifiableSortedMap(emptyMap());
+        return emptySortedMap();
     }
 
     private static <T> SortedMap<String, T> map(String name, T metric) {

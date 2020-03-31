@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
+import static com.hotels.styx.api.Collections.listOf;
 import static com.hotels.styx.api.HttpHeader.header;
 import static com.hotels.styx.api.HttpHeaderNames.CONTENT_LENGTH;
 import static com.hotels.styx.api.HttpHeaderNames.HOST;
@@ -46,8 +47,6 @@ import static com.hotels.styx.support.matchers.IsOptional.isAbsent;
 import static com.hotels.styx.support.matchers.IsOptional.isValue;
 import static com.hotels.styx.support.matchers.MapMatcher.isMap;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -210,8 +209,8 @@ public class LiveHttpRequestTest {
         assertThat(req.queryParamNames(), containsInAnyOrder("foo", "abc"));
 
         Map<String, List<String>> expected = new HashMap<>();
-        expected.put("foo", asList("bar", "hello"));
-        expected.put("abc", singletonList("def"));
+        expected.put("foo", listOf("bar", "hello"));
+        expected.put("abc", listOf("def"));
         assertThat(req.queryParams(), isMap(expected));
     }
 
@@ -517,7 +516,7 @@ public class LiveHttpRequestTest {
     public void transformsCookiesViaList() {
         LiveHttpRequest request = LiveHttpRequest.get("/").addCookies(requestCookie("cookie", "xyz010")).build()
                 .newBuilder()
-                .cookies(singletonList(requestCookie("cookie", "xyz202")))
+                .cookies(listOf(requestCookie("cookie", "xyz202")))
                 .build();
 
         assertEquals(request.cookie("cookie"), Optional.of(requestCookie("cookie", "xyz202")));
@@ -537,7 +536,7 @@ public class LiveHttpRequestTest {
     public void transformsByAddingCookiesList() {
         LiveHttpRequest request = LiveHttpRequest.get("/").build()
                 .newBuilder()
-                .addCookies(singletonList(requestCookie("cookie", "xyz202")))
+                .addCookies(listOf(requestCookie("cookie", "xyz202")))
                 .build();
 
         assertEquals(request.cookie("cookie"), Optional.of(requestCookie("cookie", "xyz202")));
@@ -557,7 +556,7 @@ public class LiveHttpRequestTest {
     public void transformsByRemovingCookieList() {
         LiveHttpRequest request = LiveHttpRequest.get("/").addCookies(requestCookie("cookie", "xyz202")).build()
                 .newBuilder()
-                .removeCookies(singletonList("cookie"))
+                .removeCookies(listOf("cookie"))
                 .build();
 
         assertEquals(request.cookie("cookie"), Optional.empty());

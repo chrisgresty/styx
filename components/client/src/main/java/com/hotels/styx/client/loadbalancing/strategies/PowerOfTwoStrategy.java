@@ -24,11 +24,10 @@ import com.hotels.styx.api.extension.RemoteHost;
 import com.hotels.styx.api.extension.loadbalancing.spi.LoadBalancer;
 import com.hotels.styx.api.extension.loadbalancing.spi.LoadBalancerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 
@@ -63,8 +62,10 @@ public class PowerOfTwoStrategy implements LoadBalancer {
 
     @Override
     public Optional<RemoteHost> choose(LoadBalancer.Preferences preferences) {
-        List<RemoteHost> hosts = StreamSupport.stream(activeOrigins.snapshot().spliterator(), false)
-                .collect(Collectors.toList());
+        Iterable<RemoteHost> snapshot = activeOrigins.snapshot();
+        List<RemoteHost> hosts = snapshot instanceof List
+                ? (List<RemoteHost>) snapshot
+                : convertToList(snapshot);
 
         if (hosts.size() == 0) {
             return Optional.empty();
@@ -76,6 +77,12 @@ public class PowerOfTwoStrategy implements LoadBalancer {
 
             return Optional.of(betterOf(hosts.get(i1), hosts.get(i2)));
         }
+    }
+
+    private List<RemoteHost> convertToList(Iterable<RemoteHost> iterable) {
+        List<RemoteHost> list = new ArrayList<>();
+        iterable.iterator().forEachRemaining(list::add);
+        return list;
     }
 
     private int drawFromRemaining(int bound, int otherIndex) {

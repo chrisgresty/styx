@@ -40,7 +40,7 @@ import static com.hotels.styx.api.extension.Origin.newOriginBuilder;
 import static com.hotels.styx.api.extension.RemoteHost.remoteHost;
 import static com.hotels.styx.api.extension.service.BackendService.newBackendServiceBuilder;
 import static com.hotels.styx.applications.BackendServices.newBackendServices;
-import static com.hotels.styx.common.Collections.unmodifiableSetOf;
+import static com.hotels.styx.common.Collections.setOf;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -337,7 +337,7 @@ public class DashboardDataTest {
     private static BackendService application(String id, Origin... origins) {
         return newBackendServiceBuilder()
                 .id(id)
-                .origins(unmodifiableSetOf(origins))
+                .origins(setOf(origins))
                 .build();
     }
 

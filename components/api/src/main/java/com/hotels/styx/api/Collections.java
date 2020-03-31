@@ -22,9 +22,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.joining;
@@ -33,28 +37,42 @@ import static java.util.stream.Collectors.toList;
 
 class Collections {
 
-    static <T> List<T> copyToUnmodifiableList(Iterator<? extends T> iterator) {
-        return copyToUnmodifiableList(toIterable(iterator));
+    static <T> List<T> listOf(Iterator<? extends T> iterator) {
+        return listOf(toIterable(iterator));
     }
 
-    static <T> List<T> copyToUnmodifiableList(Iterable<? extends T> iterable) {
+    static <T> List<T> listOf(Iterable<? extends T> iterable) {
         return unmodifiableList(stream(iterable).map(Objects::requireNonNull).collect(toList()));
     }
 
-    static <T> List<T> unmodifiableListOf(T... elements) {
+    @SafeVarargs
+    static <T> List<T> listOf(T... elements) {
+        if (elements.length == 0) {
+            return emptyList();
+        } else if (elements.length == 1) {
+            return singletonList(elements[0]);
+        }
         return unmodifiableList(Arrays.stream(elements).map(Objects::requireNonNull).collect(toList()));
     }
 
-    static <T> Set<T> copyToUnmodifiableSet(Iterator<? extends T> iterator) {
-        return copyToUnmodifiableSet(toIterable(iterator));
+    static <T> Set<T> setOf(Iterator<? extends T> iterator) {
+        return setOf(toIterable(iterator));
     }
 
-    static <T> Set<T> copyToUnmodifiableSet(Iterable<? extends T> iterable) {
-        return unmodifiableSet(stream(iterable).map(Objects::requireNonNull).collect(toCollection(() -> new LinkedHashSet<>())));
+    static <T> Set<T> setOf(Iterable<? extends T> iterable) {
+        return unmodifiableSet(stream(iterable).map(Objects::requireNonNull).collect(toOrderedSet()));
     }
 
-    static <T> Set<T> unmodifiableSetOf(T... elements) {
-        return unmodifiableSet(Arrays.stream(elements).map(Objects::requireNonNull).collect(toCollection(() -> new LinkedHashSet<>())));
+    @SafeVarargs
+    static <T> Set<T> setOf(T... elements) {
+        if (elements.length == 0) {
+            return emptySet();
+        }
+        return unmodifiableSet(Arrays.stream(elements).map(Objects::requireNonNull).collect(toOrderedSet()));
+    }
+
+    public static <T> Collector<T, ?, ? extends Set<T>> toOrderedSet() {
+        return toCollection(LinkedHashSet::new);
     }
 
     static <T> Stream<T> stream(Iterable<? extends T> iterable) {
@@ -64,12 +82,11 @@ class Collections {
     }
 
     static String toString(Iterable<?> iterable) {
-        return new StringBuilder("[")
-                .append(stream(iterable)
-                        .map(o -> o == null ? "null" : o.toString())
-                        .collect(joining(", ")))
-                .append("]")
-                .toString();
+        return "["
+                + stream(iterable)
+                .map(o -> o == null ? "null" : o.toString())
+                .collect(joining(", "))
+                + "]";
     }
 
     private static <T> Iterable<? extends T> toIterable(Iterator<? extends T> iterator) {

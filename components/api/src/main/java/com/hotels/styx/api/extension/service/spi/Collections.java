@@ -25,17 +25,25 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.emptyIterator;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 class Collections {
 
-    static <T> List<T> copyToUnmodifiableList(Iterable<? extends T> iterable) {
+    static <T> List<T> listOf(Iterable<? extends T> iterable) {
         return unmodifiableList(stream(iterable).map(Objects::requireNonNull).collect(toList()));
     }
 
-    static <T> List<T> unmodifiableListOf(T... elements) {
+    @SafeVarargs
+    static <T> List<T> listOf(T... elements) {
+        if (elements.length == 0) {
+            return emptyList();
+        } else if (elements.length == 1) {
+            return singletonList(elements[0]);
+        }
         return unmodifiableList(Arrays.stream(elements).map(Objects::requireNonNull).collect(toList()));
     }
 
@@ -76,13 +84,7 @@ class Collections {
     }
 
     static <T> Iterable<T> concat(Iterable<? extends T> a, Iterable<? extends T> b) {
-        return new Iterable<T>() {
-
-            @Override
-            public Iterator<T> iterator() {
-                return concat(a.iterator(), b.iterator());
-            }
-        };
+        return () -> concat(a.iterator(), b.iterator());
     }
 
     /*
@@ -100,9 +102,10 @@ class Collections {
      * See the License for the specific language governing permissions and
      * limitations under the License.
      */
+    @SafeVarargs
     private static <T> Iterator<T> concat(Iterator<? extends T>... inputs) {
         requireNonNull(inputs);
-        Iterator<? extends Iterator<? extends T>> inputIterator = unmodifiableListOf(inputs).iterator();
+        Iterator<? extends Iterator<? extends T>> inputIterator = listOf(inputs).iterator();
 
         return new Iterator<T>() {
             Iterator<? extends T> current = emptyIterator();
