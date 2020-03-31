@@ -38,11 +38,11 @@ import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyIterator;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -425,8 +425,6 @@ public final class Collections {
                 }
             };
         }
-
-        private static final long serialVersionUID = 0;
     }
 
     /**
@@ -471,7 +469,6 @@ public final class Collections {
         @Override public int size() {
             return fromList.size();
         }
-        private static final long serialVersionUID = 0;
     }
 
 }

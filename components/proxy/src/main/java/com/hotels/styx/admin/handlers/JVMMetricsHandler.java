@@ -115,7 +115,7 @@ public class JVMMetricsHandler extends JsonHandler<MetricRegistry> {
 
         @Override
         public SortedSet<String> getNames() {
-            return new FilteredSortedSet<String> (original.getNames(), STARTS_WITH_JVM);
+            return new FilteredSortedSet<String>(original.getNames(), STARTS_WITH_JVM);
         }
 
         @Override
@@ -350,7 +350,7 @@ public class JVMMetricsHandler extends JsonHandler<MetricRegistry> {
             int size = size();
             T[] array = a.length <= size
                     ? a
-                    : (T[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+                    : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
             return unfiltered.stream().filter(filter).toArray(n -> array);
         }
 
